@@ -1,35 +1,101 @@
 """
 Setup Verification Script
 Run this script to verify your development environment is configured correctly.
+Validates both the Anthropic plugin structure and the Python backup mode.
 """
 
 from pathlib import Path
 import os
 import sys
+import json
+
+# Handle Unicode on Windows console
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+
+def test_plugin_structure():
+    """Test that the Anthropic plugin structure is correct."""
+    print("\nChecking plugin structure...")
+
+    required_files = [
+        ".claude-plugin/plugin.json",
+        ".mcp.json",
+        "commands/analyze-transcript.md",
+        "commands/generate-bpmn.md",
+        "commands/optimize-process.md",
+        "commands/full-transformation.md",
+        "skills/transcript-analysis/SKILL.md",
+        "skills/bpmn-generation/SKILL.md",
+        "skills/process-optimization/SKILL.md",
+        "CONNECTORS.md",
+        "LICENSE",
+    ]
+
+    all_exist = True
+    for file_path in required_files:
+        path = Path(file_path)
+        if path.exists():
+            print(f"  \u2713 {file_path}")
+        else:
+            print(f"  \u274c {file_path} - file missing")
+            all_exist = False
+
+    # Validate plugin.json content
+    plugin_json = Path(".claude-plugin/plugin.json")
+    if plugin_json.exists():
+        try:
+            data = json.loads(plugin_json.read_text(encoding="utf-8"))
+            for field in ["name", "version", "description", "author"]:
+                if field in data:
+                    print(f"  \u2713 plugin.json has '{field}': {str(data[field])[:50]}")
+                else:
+                    print(f"  \u274c plugin.json missing '{field}'")
+                    all_exist = False
+        except json.JSONDecodeError as e:
+            print(f"  \u274c plugin.json is invalid JSON: {e}")
+            all_exist = False
+
+    # Validate .mcp.json content
+    mcp_json = Path(".mcp.json")
+    if mcp_json.exists():
+        try:
+            data = json.loads(mcp_json.read_text(encoding="utf-8"))
+            if "mcpServers" in data:
+                print(f"  \u2713 .mcp.json has 'mcpServers' with {len(data['mcpServers'])} connector(s)")
+            else:
+                print(f"  \u274c .mcp.json missing 'mcpServers'")
+                all_exist = False
+        except json.JSONDecodeError as e:
+            print(f"  \u274c .mcp.json is invalid JSON: {e}")
+            all_exist = False
+
+    return all_exist
+
 
 def test_imports():
     """Test that required packages can be imported."""
-    print("Testing package imports...")
+    print("\nTesting package imports...")
 
     try:
         import anthropic
-        print("  ✓ anthropic")
+        print("  \u2713 anthropic")
     except ImportError:
-        print("  ❌ anthropic - run: pip install anthropic")
+        print("  \u274c anthropic - run: pip install anthropic")
         return False
 
     try:
         import dotenv
-        print("  ✓ python-dotenv")
+        print("  \u2713 python-dotenv")
     except ImportError:
-        print("  ❌ python-dotenv - run: pip install python-dotenv")
+        print("  \u274c python-dotenv - run: pip install python-dotenv")
         return False
 
     try:
         import jupyter
-        print("  ✓ jupyter")
+        print("  \u2713 jupyter")
     except ImportError:
-        print("  ❌ jupyter - run: pip install jupyter")
+        print("  \u274c jupyter - run: pip install jupyter")
         return False
 
     return True
@@ -40,11 +106,11 @@ def test_env_file():
 
     env_path = Path("config/.env")
     if not env_path.exists():
-        print("  ❌ config/.env file not found")
+        print("  \u274c config/.env file not found")
         print("     Run: copy config\\.env.example config\\.env")
         return False
 
-    print("  ✓ config/.env file exists")
+    print("  \u2713 config/.env file exists")
 
     # Try loading environment variables
     from dotenv import load_dotenv
@@ -52,11 +118,11 @@ def test_env_file():
 
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key or api_key == "your_anthropic_api_key_here":
-        print("  ⚠ ANTHROPIC_API_KEY not set or using placeholder")
+        print("  \u26a0 ANTHROPIC_API_KEY not set or using placeholder")
         print("     Edit config/.env and add your API key from https://console.anthropic.com/")
         return False
 
-    print("  ✓ ANTHROPIC_API_KEY is set")
+    print("  \u2713 ANTHROPIC_API_KEY is set")
     return True
 
 def test_api_connection():
@@ -70,7 +136,7 @@ def test_api_connection():
     api_key = os.getenv("ANTHROPIC_API_KEY")
 
     if not api_key or api_key == "your_anthropic_api_key_here":
-        print("  ⚠ Skipping API test (no valid API key)")
+        print("  \u26a0 Skipping API test (no valid API key)")
         return None
 
     try:
@@ -80,11 +146,11 @@ def test_api_connection():
             max_tokens=100,
             messages=[{"role": "user", "content": "Hello, Claude! Respond with just 'API test successful'."}]
         )
-        print("  ✓ API connection successful")
-        print(f"  ✓ Response: {response.content[0].text[:60]}...")
+        print("  \u2713 API connection successful")
+        print(f"  \u2713 Response: {response.content[0].text[:60]}...")
         return True
     except Exception as e:
-        print(f"  ❌ API connection failed: {e}")
+        print(f"  \u274c API connection failed: {e}")
         return False
 
 def test_directories():
@@ -92,8 +158,14 @@ def test_directories():
     print("\nChecking directory structure...")
 
     required_dirs = [
+        ".claude-plugin",
+        "commands",
         "skills/transcript-analysis",
         "skills/transcript-analysis/domain-knowledge",
+        "skills/bpmn-generation",
+        "skills/bpmn-generation/domain-knowledge",
+        "skills/process-optimization",
+        "skills/process-optimization/domain-knowledge",
         "data/sample-transcripts",
         "outputs/analysis",
         "outputs/bpmn-diagrams",
@@ -106,31 +178,35 @@ def test_directories():
     for dir_path in required_dirs:
         path = Path(dir_path)
         if path.exists():
-            print(f"  ✓ {dir_path}")
+            print(f"  \u2713 {dir_path}")
         else:
-            print(f"  ❌ {dir_path} - directory missing")
+            print(f"  \u274c {dir_path} - directory missing")
             all_exist = False
 
     return all_exist
 
 def test_skill_files():
-    """Test that skill files exist."""
+    """Test that skill and domain knowledge files exist."""
     print("\nChecking skill files...")
 
     required_files = [
         "skills/transcript-analysis/SKILL.md",
         "skills/transcript-analysis/README.md",
         "skills/transcript-analysis/domain-knowledge/example-01-ap-transcript.txt",
-        "skills/transcript-analysis/domain-knowledge/example-01-ap-analysis.md"
+        "skills/transcript-analysis/domain-knowledge/example-01-ap-analysis.md",
+        "skills/bpmn-generation/SKILL.md",
+        "skills/bpmn-generation/domain-knowledge/apqc-activities.md",
+        "skills/process-optimization/SKILL.md",
+        "skills/process-optimization/domain-knowledge/example-01-ap-recommendations.md",
     ]
 
     all_exist = True
     for file_path in required_files:
         path = Path(file_path)
         if path.exists():
-            print(f"  ✓ {file_path}")
+            print(f"  \u2713 {file_path}")
         else:
-            print(f"  ❌ {file_path} - file missing")
+            print(f"  \u274c {file_path} - file missing")
             all_exist = False
 
     return all_exist
@@ -138,7 +214,7 @@ def test_skill_files():
 def main():
     """Run all verification tests."""
     print("=" * 70)
-    print("TRANSFORMATION CONSULTANT AGENT - SETUP VERIFICATION")
+    print("TRANSFORMATION CONSULTANT - SETUP VERIFICATION")
     print("=" * 70)
 
     # Change to project root if we're not already there
@@ -146,10 +222,11 @@ def main():
     os.chdir(script_dir)
 
     results = {
+        "plugin_structure": test_plugin_structure(),
+        "directories": test_directories(),
+        "skill_files": test_skill_files(),
         "imports": test_imports(),
         "env": test_env_file(),
-        "directories": test_directories(),
-        "skill_files": test_skill_files()
     }
 
     # API test is optional if no key is set
@@ -166,20 +243,20 @@ def main():
     total = len(results)
 
     for test_name, result in results.items():
-        status = "✓ PASS" if result else "❌ FAIL"
+        status = "\u2713 PASS" if result else "\u274c FAIL"
         print(f"{status}: {test_name}")
 
     print(f"\n{passed}/{total} tests passed")
 
     if all(results.values()):
-        print("\n✅ All tests passed! Your environment is ready.")
-        print("\nNext steps:")
-        print("  1. Create notebooks/01-transcript-analysis-prototype.ipynb")
-        print("  2. Test the transcript analysis skill")
-        print("  3. See skills/transcript-analysis/README.md for usage examples")
+        print("\n\u2705 All tests passed! Your environment is ready.")
+        print("\nPlugin mode:")
+        print("  Use /transformation-consultant:full-transformation in Claude")
+        print("\nPython backup mode:")
+        print("  python -m src.main data/sample-transcripts/ap-process.txt outputs/test")
         return 0
     else:
-        print("\n⚠ Some tests failed. Please fix the issues above and run again.")
+        print("\n\u26a0 Some tests failed. Please fix the issues above and run again.")
         return 1
 
 if __name__ == "__main__":

@@ -219,9 +219,9 @@ The expense report approval process involves employees submitting reports throug
 
 **Simultaneous activities**: If steps happen in parallel, note this in the step description: "[This step occurs in parallel with Step X]"
 
-## Begin Analysis
+## Analysis Approach
 
-When you receive a transcript, begin your analysis immediately using the format above. Extract information methodically:
+When analyzing a transcript, extract information methodically:
 1. Read through once to understand overall process flow
 2. Identify the process name
 3. Extract each step sequentially

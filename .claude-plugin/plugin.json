@@ -1,0 +1,8 @@
+{
+  "name": "transformation-consultant",
+  "version": "1.0.0",
+  "description": "Analyze business process transcripts, generate BPMN 2.0 diagrams, and provide optimization recommendations with ROI analysis. Transform how organizations understand and improve their workflows.",
+  "author": {
+    "name": "Transformation Consultant"
+  }
+}

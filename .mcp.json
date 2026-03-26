@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "slack": {
+      "type": "http",
+      "url": ""
+    },
+    "ms365": {
+      "type": "http",
+      "url": ""
+    }
+  }
+}

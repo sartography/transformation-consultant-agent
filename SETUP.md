@@ -1,8 +1,24 @@
 # Setup Guide
 
-This guide will help you set up your development environment for the Transformation Consultant Agent.
+This guide covers both plugin mode and Python backup mode for the Transformation Consultant.
 
-## Prerequisites
+## Plugin Mode (Recommended)
+
+Install as a Claude plugin for the simplest experience — no Python setup required.
+
+```bash
+claude plugins add knowledge-work-plugins/transformation-consultant
+```
+
+Once installed, use slash commands like `/transformation-consultant:full-transformation` directly in Claude Code or Claude Cowork. See [README.md](README.md) for command documentation.
+
+---
+
+## Python Backup Mode
+
+The project also includes a standalone Python implementation. Use this for programmatic execution or when you need the pipeline's built-in retry logic and cost tracking.
+
+### Prerequisites
 
 - Python 3.9 or higher
 - pip (Python package manager)

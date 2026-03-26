@@ -271,5 +271,3 @@ You have access to domain-knowledge examples showing optimization recommendation
 When in doubt, follow the patterns established in the domain-knowledge examples while adapting to the specific circumstances of the process being analyzed.
 
 ---
-
-*This skill is part of the transformation-consultant-agent pipeline. It receives output from transcript-analysis and bpmn-generation skills, and produces actionable optimization recommendations.*
