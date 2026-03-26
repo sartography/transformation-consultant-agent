@@ -1,0 +1,22 @@
+{
+  "pipeline_name": "Transcript Analysis Pipeline",
+  "components": [
+    "Transcript Analysis"
+  ],
+  "start_time": "2026-02-02T22:00:21.862424",
+  "Transcript Analysis": {
+    "input_tokens": 5144,
+    "output_tokens": 5482,
+    "model": "claude-sonnet-4-5-20250929",
+    "attempts": 1,
+    "input_cost_usd": 0.015432,
+    "output_cost_usd": 0.08223,
+    "total_cost_usd": 0.097662,
+    "component": "Transcript Analysis",
+    "transcript_length": 11569
+  },
+  "end_time": "2026-02-02T22:02:19.770750",
+  "total_components": 1,
+  "completed_components": 1,
+  "total_cost_usd": 0.097662
+}
