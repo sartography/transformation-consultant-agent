@@ -5,11 +5,30 @@ Provides high-level functions for common workflows and pipeline creation.
 """
 
 import os
+import logging
 from pathlib import Path
 from typing import Optional
 from dotenv import load_dotenv
 
 from .pipeline import Pipeline, PipelineResult
+
+
+def setup_logging(level: str = "INFO"):
+    """
+    Configure logging for the application.
+
+    Args:
+        level: Logging level (DEBUG, INFO, WARNING, ERROR)
+    """
+    logging.basicConfig(
+        level=getattr(logging, level.upper()),
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+
+# Module logger
+logger = logging.getLogger(__name__)
 from .components.input.transcript_processor import TranscriptProcessor
 from .components.generation.bpmn_generator import BPMNGenerator
 from .components.optimization.recommendation_engine import RecommendationEngine
@@ -154,18 +173,18 @@ def run_full_transformation(transcript_path: Path,
         pipeline.component_configs[2]['business_context'] = business_context
 
     # Execute
-    print(f"[Main] Starting full transformation pipeline")
-    print(f"[Main] Input: {transcript_path}")
-    print(f"[Main] Output: {output_dir}")
+    logger.info("Starting full transformation pipeline")
+    logger.info("Input: %s", transcript_path)
+    logger.info("Output: %s", output_dir)
 
     result = pipeline.execute(transcript)
 
     # Save outputs
     if result.success:
         result.save_outputs(output_dir)
-        print(f"[Main] SUCCESS: Outputs saved to {output_dir}")
+        logger.info("SUCCESS: Outputs saved to %s", output_dir)
     else:
-        print(f"[Main] FAILED: {result.errors}")
+        logger.error("FAILED: %s", result.errors)
 
     return result
 
@@ -173,6 +192,9 @@ def run_full_transformation(transcript_path: Path,
 def main():
     """Command-line interface for running the transformation pipeline."""
     import sys
+
+    # Setup logging for CLI usage
+    setup_logging(os.getenv("LOG_LEVEL", "INFO"))
 
     if len(sys.argv) < 2:
         print("Usage: python -m src.main <transcript_path> [output_dir]")

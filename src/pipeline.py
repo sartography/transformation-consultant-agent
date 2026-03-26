@@ -10,8 +10,12 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 import json
+import logging
 
 from .interfaces.component import BaseComponent, ComponentResult
+
+# Module logger
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -114,6 +118,7 @@ class Pipeline:
         """
         outputs = {}
         errors = []
+        total_cost = 0.0  # Track aggregated cost across components
         metadata = {
             "pipeline_name": self.name,
             "components": [c.component_name for c in self.components],
@@ -129,7 +134,7 @@ class Pipeline:
         # Execute each component in sequence
         for i, (component, config) in enumerate(zip(self.components, self.component_configs)):
             component_name = component.component_name
-            print(f"[Pipeline] Executing: {component_name} ({i+1}/{len(self.components)})")
+            logger.info("Executing: %s (%d/%d)", component_name, i+1, len(self.components))
 
             try:
                 # Check if config specifies a specific input to use
@@ -137,7 +142,7 @@ class Pipeline:
                     input_component = config['input_from']
                     if input_component in intermediate_outputs:
                         current_input = intermediate_outputs[input_component]
-                        print(f"[Pipeline] Using output from '{input_component}' as input")
+                        logger.debug("Using output from '%s' as input", input_component)
                     else:
                         raise ValueError(f"Component '{input_component}' output not found")
 
@@ -153,14 +158,18 @@ class Pipeline:
                     metadata[component_name] = {}
                 metadata[component_name] = result.metadata
 
+                # Aggregate cost
+                if 'total_cost_usd' in result.metadata:
+                    total_cost += result.metadata['total_cost_usd']
+
                 # Check for errors
                 if not result.success:
                     error_msg = f"{component_name} failed: {result.error}"
                     errors.append(error_msg)
-                    print(f"[Pipeline] ERROR: {error_msg}")
+                    logger.error(error_msg)
 
                     if stop_on_error:
-                        print(f"[Pipeline] Stopping pipeline due to error")
+                        logger.warning("Stopping pipeline due to error")
                         break
                     else:
                         # Continue with None input
@@ -168,12 +177,12 @@ class Pipeline:
                 else:
                     # Success - pass output to next component
                     current_input = result.data
-                    print(f"[Pipeline] SUCCESS: {component_name} completed")
+                    logger.info("SUCCESS: %s completed", component_name)
 
             except Exception as e:
                 error_msg = f"{component_name} raised exception: {str(e)}"
                 errors.append(error_msg)
-                print(f"[Pipeline] EXCEPTION: {error_msg}")
+                logger.exception(error_msg)
 
                 if stop_on_error:
                     break
@@ -184,6 +193,7 @@ class Pipeline:
         metadata["end_time"] = datetime.now().isoformat()
         metadata["total_components"] = len(self.components)
         metadata["completed_components"] = len(outputs)
+        metadata["total_cost_usd"] = round(total_cost, 6)
 
         success = len(errors) == 0
 

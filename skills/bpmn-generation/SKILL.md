@@ -506,5 +506,3 @@ Provide the FULL, complete, valid BPMN 2.0 XML document ready to save as a .bpmn
 - Proper diagram positioning for all elements
 
 ---
-
-*This skill is part of the transformation-consultant-agent system for automated business process transformation analysis.*

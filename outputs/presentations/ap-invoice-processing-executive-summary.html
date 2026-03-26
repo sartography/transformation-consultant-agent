@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP Invoice Processing — Transformation Recommendations</title>
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #ffffff;
+    --surface: #f6f8fa;
+    --surface-hover: #eef1f5;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --text-muted: #656d76;
+    --accent: #0969da;
+    --accent-glow: rgba(9, 105, 218, 0.08);
+    --green: #1a7f37;
+    --green-muted: rgba(26, 127, 55, 0.08);
+    --orange: #9a6700;
+    --orange-muted: rgba(154, 103, 0, 0.08);
+    --red: #cf222e;
+    --red-muted: rgba(207, 34, 46, 0.08);
+    --purple: #8250df;
+    --purple-muted: rgba(130, 80, 223, 0.08);
+    --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --mono: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); overflow: hidden; }
+
+  /* ===== DECK ===== */
+  .deck {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+  }
+
+  /* ===== SLIDE ===== */
+  .slide {
+    width: 100vw;
+    min-height: 100vh;
+    height: 100vh;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem 6rem;
+    position: relative;
+    scroll-snap-align: start;
+    overflow: hidden;
+  }
+
+  /* Subtle top-left gradient accent */
+  .slide::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 10% 0%, var(--accent-glow) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .slide > * { position: relative; z-index: 1; }
+
+  /* ===== TYPOGRAPHY ===== */
+  h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 0.4em;
+    color: var(--text);
+  }
+
+  h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 0.5em;
+    color: var(--text);
+  }
+
+  h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 0.4em;
+    color: var(--accent);
+  }
+
+  p, li {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--text-muted);
+  }
+
+  .subtitle {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    font-weight: 400;
+    margin-bottom: 1.2em;
+  }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.25em 0.7em;
+    border-radius: 4px;
+    margin-bottom: 0.8em;
+  }
+
+  .tag--blue { background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(9,105,218,0.2); }
+  .tag--green { background: var(--green-muted); color: var(--green); border: 1px solid rgba(26,127,55,0.2); }
+  .tag--orange { background: var(--orange-muted); color: var(--orange); border: 1px solid rgba(154,103,0,0.2); }
+  .tag--red { background: var(--red-muted); color: var(--red); border: 1px solid rgba(207,34,46,0.2); }
+
+  /* ===== GRID LAYOUTS ===== */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    transition: border-color 0.2s;
+  }
+
+  .card:hover { border-color: var(--accent); }
+
+  .card__number {
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: var(--mono);
+    line-height: 1;
+    margin-bottom: 0.15em;
+  }
+
+  .card__label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .card__detail {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.3em;
+  }
+
+  /* ===== METRIC ROW ===== */
+  .metrics {
+    display: flex;
+    gap: 1rem;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+  }
+
+  .metric {
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+    padding: 0.8rem 0.6rem;
+    background: var(--surface);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .metric__value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    font-family: var(--mono);
+  }
+
+  .metric__label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 0.2em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ===== PAIN POINTS ===== */
+  .pain {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .pain:last-child { border-bottom: none; }
+
+  .pain__icon {
+    flex-shrink: 0;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    background: var(--red-muted);
+    color: var(--red);
+    font-weight: 700;
+  }
+
+  .pain__text h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.1em;
+  }
+
+  .pain__text p {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  /* ===== RECOMMENDATIONS ===== */
+  .rec {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+  }
+
+  .rec__num {
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--accent-glow);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    border: 1px solid rgba(9,105,218,0.2);
+  }
+
+  .rec__body h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.1em;
+  }
+
+  .rec__body p {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .rec__tags {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.3em;
+  }
+
+  .rec__tags span {
+    font-size: 0.65rem;
+    padding: 0.15em 0.5em;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  /* ===== ROADMAP ===== */
+  .roadmap {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .phase {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    position: relative;
+  }
+
+  .phase::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 10px 10px 0 0;
+  }
+
+  .phase--1::before { background: var(--green); }
+  .phase--2::before { background: var(--accent); }
+  .phase--3::before { background: var(--purple); }
+
+  .phase__title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.4em;
+    font-weight: 700;
+  }
+
+  .phase--1 .phase__title { color: var(--green); }
+  .phase--2 .phase__title { color: var(--accent); }
+  .phase--3 .phase__title { color: var(--purple); }
+
+  .phase ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .phase li {
+    font-size: 0.8rem;
+    padding: 0.2em 0;
+    padding-left: 1em;
+    position: relative;
+    color: var(--text-muted);
+  }
+
+  .phase li::before {
+    content: '\2192';
+    position: absolute;
+    left: 0;
+    color: var(--text-muted);
+  }
+
+  /* ===== ROI SLIDE ===== */
+  .roi-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0.4rem 0;
+  }
+
+  .roi-bar__label {
+    width: 80px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .roi-bar__track {
+    flex: 1;
+    height: 28px;
+    background: var(--surface);
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .roi-bar__fill {
+    height: 100%;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding-left: 0.6rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: var(--mono);
+    color: #fff;
+    transition: width 1s ease;
+  }
+
+  /* ===== NEXT STEPS ===== */
+  .steps {
+    counter-reset: step;
+    list-style: none;
+    padding: 0;
+  }
+
+  .steps li {
+    counter-increment: step;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .steps li:last-child { border-bottom: none; }
+
+  .steps li::before {
+    content: counter(step);
+    flex-shrink: 0;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    background: var(--accent-glow);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    border: 1px solid rgba(9,105,218,0.2);
+  }
+
+  /* ===== SLIDE COUNTER ===== */
+  .slide-num {
+    position: absolute;
+    bottom: 1rem;
+    right: 1.5rem;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    opacity: 0.4;
+  }
+
+  /* ===== ANIMATIONS ===== */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate {
+    opacity: 0;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+  .delay-4 { animation-delay: 0.4s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate { animation: none; opacity: 1; }
+  }
+
+  /* ===== NAV ===== */
+  .nav {
+    position: fixed;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.35rem;
+    z-index: 100;
+    background: var(--bg);
+    padding: 0.4rem 0.7rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    opacity: 0.5;
+    transition: opacity 0.3s;
+  }
+
+  .nav:hover { opacity: 1; }
+
+  .nav__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  .nav__dot--active {
+    background: var(--accent);
+    transform: scale(1.3);
+  }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    width: 50px;
+    height: 3px;
+    background: var(--accent);
+    border-radius: 2px;
+    margin: 0.8rem 0;
+  }
+
+  .text--green { color: var(--green); }
+  .text--accent { color: var(--accent); }
+  .text--orange { color: var(--orange); }
+  .text--red { color: var(--red); }
+  .text--purple { color: var(--purple); }
+
+  /* ===== RESPONSIVE: allow smaller viewports ===== */
+  @media (max-height: 700px) {
+    .slide { padding: 2rem 4rem; }
+    h1 { font-size: 2.2rem; }
+    h2 { font-size: 1.6rem; }
+    .card__number { font-size: 1.6rem; }
+    .metric__value { font-size: 1.3rem; }
+    .rec { padding: 0.6rem 0.8rem; margin-bottom: 0.4rem; }
+    .pain { padding: 0.4rem 0; }
+  }
+
+  @media (max-width: 900px) {
+    .slide { padding: 2rem 3rem; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .roadmap { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+
+  <!-- ==================== SLIDE 1: TITLE ==================== -->
+  <div class="slide" id="slide-1">
+    <span class="tag tag--blue animate delay-1">Transformation Recommendations</span>
+    <h1 class="animate delay-2">Accounts Payable<br>Invoice Processing</h1>
+    <div class="divider animate delay-3"></div>
+    <p class="subtitle animate delay-3">Optimization roadmap with ROI analysis and implementation plan</p>
+    <p class="animate delay-4" style="font-size: 0.8rem; color: var(--text-muted);">Prepared by Transformation Consultant Agent</p>
+    <span class="slide-num">1 / 10</span>
+  </div>
+
+  <!-- ==================== SLIDE 2: EXECUTIVE SUMMARY ==================== -->
+  <div class="slide" id="slide-2">
+    <span class="tag tag--blue animate delay-1">Overview</span>
+    <h2 class="animate delay-2">Executive Summary</h2>
+    <div class="grid-2 animate delay-3">
+      <div>
+        <h3>Current State</h3>
+        <p>The AP team processes 350 invoices/month through a heavily manual workflow. Three-way matching consumes ~50% of specialist time, Excel tracks status outside the ERP, and unreliable notifications generate unnecessary vendor inquiries.</p>
+      </div>
+      <div>
+        <h3>The Opportunity</h3>
+        <p>10 targeted recommendations across three phases can reduce cycle time from 25 to 7 days, cut cost-per-invoice from $15-18 to $6, and achieve 70% straight-through processing — delivering <strong class="text--green">$127K-$156K in annual savings</strong>.</p>
+      </div>
+    </div>
+    <div class="metrics animate delay-4">
+      <div class="metric">
+        <div class="metric__value text--red">25 days</div>
+        <div class="metric__label">Current Cycle Time</div>
+      </div>
+      <div class="metric">
+        <div class="metric__value text--green">7 days</div>
+        <div class="metric__label">Target Cycle Time</div>
+      </div>
+      <div class="metric">
+        <div class="metric__value text--orange">$234K</div>
+        <div class="metric__label">Annual Labor Cost</div>
+      </div>
+      <div class="metric">
+        <div class="metric__value text--accent">14-18 mo</div>
+        <div class="metric__label">Payback Period</div>
+      </div>
+    </div>
+    <span class="slide-num">2 / 10</span>
+  </div>
+
+  <!-- ==================== SLIDE 3: KEY METRICS ==================== -->
+  <div class="slide" id="slide-3">
+    <span class="tag tag--blue animate delay-1">By the Numbers</span>
+    <h2 class="animate delay-2">Key Process Metrics</h2>
+    <div class="grid-3 animate delay-3">
+      <div class="card">
+        <div class="card__number">350</div>
+        <div class="card__label">Invoices / Month</div>
+        <div class="card__detail">80% PO-based, 20% Non-PO</div>
+      </div>
+      <div class="card">
+        <div class="card__number">21</div>
+        <div class="card__label">Process Steps</div>
+        <div class="card__detail">17 require manual intervention</div>
+      </div>
+      <div class="card">
+        <div class="card__number text--red">30-40%</div>
+        <div class="card__label">Mismatch Rate</div>
+        <div class="card__detail">Description discrepancies in 3-way match</div>
+      </div>
+      <div class="card">
+        <div class="card__number text--orange">50%</div>
+        <div class="card__label">Remittance Failure</div>
+        <div class="card__detail">Auto-notifications work only half the time</div>
+      </div>
+      <div class="card">
+        <div class="card__number">9</div>
+        <div class="card__label">Actors Involved</div>
+        <div class="card__detail">AP, buyers, warehouse, vendors, mgmt</div>
+      </div>
+      <div class="card">
+        <div class="card__number text--red">12</div>
+        <div class="card__label">Pain Points Found</div>
+        <div class="card__detail">5 critical, 7 inefficiencies</div>
+      </div>
+    </div>
+    <span class="slide-num">3 / 10</span>
+  </div>
+
+  <!-- ==================== SLIDE 4: TOP PAIN POINTS ==================== -->
+  <div class="slide" id="slide-4">
+    <span class="tag tag--red animate delay-1">Critical Issues</span>
+    <h2 class="animate delay-2">Top Pain Points</h2>
+    <div class="animate delay-3">
+      <div class="pain">
+        <div class="pain__icon">1</div>
+        <div class="pain__text">
+          <h4>Three-Way Match Chaos</h4>
+          <p>Descriptions rarely match across invoice, PO, and receiving report. Consumes ~50% of AP specialist time.</p>
+        </div>
+      </div>
+      <div class="pain">
+        <div class="pain__icon">2</div>
+        <div class="pain__text">
+          <h4>Shadow Excel Tracking</h4>
+          <p>ERP lacks status visibility, forcing a personal spreadsheet for queue management — single-point-of-failure risk.</p>
+        </div>
+      </div>
+      <div class="pain">
+        <div class="pain__icon">3</div>
+        <div class="pain__text">
+          <h4>Duplicate Payments Slip Through</h4>
+          <p>System can't flag duplicates with different invoice numbers or dates. 1-2 duplicates monthly.</p>
+        </div>
+      </div>
+      <div class="pain">
+        <div class="pain__icon">4</div>
+        <div class="pain__text">
+          <h4>Communication Bottlenecks</h4>
+          <p>Waiting days to weeks for buyer/warehouse responses on discrepancies. Causes aging and late fees.</p>
+        </div>
+      </div>
+      <div class="pain">
+        <div class="pain__icon">5</div>
+        <div class="pain__text">
+          <h4>Broken Payment Notifications</h4>
+          <p>Only 50% of vendors receive remittance advice, generating high volumes of "where's my payment?" calls.</p>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num">4 / 10</span>
+  </div>
+
+  <!-- ==================== SLIDE 5: QUICK WINS ==================== -->
+  <div class="slide" id="slide-5">
+    <span class="tag tag--green animate delay-1">0-3 Months</span>
+    <h2 class="animate delay-2">Quick Wins</h2>
+    <div class="animate delay-3">
+      <div class="rec">
+        <div class="rec__num">1</div>
+        <div class="rec__body">
+          <h4>Eliminate Print-and-Scan Workaround</h4>
+          <p>Direct PDF upload via ABBYY FineReader. Saves 35 hrs/month. <strong class="text--green">Payback: 8 months</strong></p>
+          <div class="rec__tags">
+            <span style="background:var(--green-muted);color:var(--green);">Impact 9/10</span>
+            <span style="background:var(--accent-glow);color:var(--accent);">$27K/yr savings</span>
+          </div>
+        </div>
+      </div>
+      <div class="rec">
+        <div class="rec__num">2</div>
+        <div class="rec__body">
+          <h4>Tiered Approval Thresholds with Auto-Approval</h4>
+          <p>SAP config change — no new software. 60% of approvals auto-clear. <strong class="text--green">Payback: 4 months</strong></p>
+          <div class="rec__tags">
+            <span style="background:var(--green-muted);color:var(--green);">Impact 8/10</span>
+            <span style="background:var(--accent-glow);color:var(--accent);">$14K/yr savings</span>
+          </div>
+        </div>
+      </div>
+      <div class="rec">
+        <div class="rec__num">3</div>
+        <div class="rec__body">
+          <h4>Mobile-Enabled Approval Notifications</h4>
+          <p>One-tap approve via Teams/Outlook. Cuts approval from 2-3 days to 4-8 hours. <strong class="text--green">Payback: 5 months</strong></p>
+          <div class="rec__tags">
+            <span style="background:var(--green-muted);color:var(--green);">Impact 7/10</span>
+            <span style="background:var(--accent-glow);color:var(--accent);">$13K/yr savings</span>
+          </div>
+        </div>
+      </div>
+      <div class="rec">
+        <div class="rec__num">4</div>
+        <div class="rec__body">
+          <h4>Fix Payment Notification System</h4>
+          <p>SendGrid for 99%+ delivery. Eliminates manual remittance lookups. <strong class="text--green">Payback: 7 months</strong></p>
+          <div class="rec__tags">
+            <span style="background:var(--orange-muted);color:var(--orange);">Impact 6/10</span>
+            <span style="background:var(--accent-glow);color:var(--accent);">$6K/yr savings</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="animate delay-4" style="margin-top:0.5rem; font-size:0.85rem; font-weight:600;">Phase 1 Total: <span class="text--accent">$32K investment</span> &rarr; <span class="text--green">$61K annual savings</span></p>
+    <span class="slide-num">5 / 10</span>
+  </div>
+
+  <!-- ==================== SLIDE 6: MEDIUM-TERM ==================== -->
+  <div class="slide" id="slide-6">
+    <span class="tag tag--blue animate delay-1">3-6 Months</span>
+    <h2 class="animate delay-2">Medium-Term Improvements</h2>
+    <div class="animate delay-3">
+      <div class="rec">
+        <div class="rec__num">5</div>
+        <div class="rec__body">
+          <h4>Intelligent Document Processing (IDP)</h4>
+          <p>ABBYY Vantage extracts invoice data automatically. 90%+ accuracy. Saves 100 hrs/month. <strong class="text--green">Payback: 11 months</strong></p>
+          <div class="rec__tags">
+            <span style="background:var(--green-muted);color:var(--green);">Impact 10/10</span>
+            <span style="background:var(--accent-glow);color:var(--accent);">$78K/yr savings</span>
+          </div>
+        </div>
+      </div>
+      <div class="rec">
+        <div class="rec__num">6</div>
+        <div class="rec__body">
+          <h4>Intelligent PO Matching</h4>
+          <p>Fuzzy matching on vendor, amounts, line items. Auto-matches 80%+ of invoices. <strong class="text--green">Payback: 15 months</strong></p>
+          <div class="rec__tags">
+            <span style="background:var(--green-muted);color:var(--green);">Impact 8/10</span>
+            <span style="background:var(--accent-glow);color:var(--accent);">$34K/yr savings</span>
+          </div>
+        </div>
+      </div>
+      <div class="rec">
+        <div class="rec__num">7</div>
+        <div class="rec__body">
+          <h4>Proactive Discrepancy Management Workflow</h4>
+          <p>Automated routing with SLAs. Resolution drops from 1-2 weeks to 3-5 days. <strong class="text--green">Payback: 9 months</strong></p>
+          <div class="rec__tags">
+            <span style="background:var(--green-muted);color:var(--green);">Impact 8/10</span>
+            <span style="background:var(--accent-glow);color:var(--accent);">$31K/yr savings</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="animate delay-4" style="margin-top:0.5rem; font-size:0.85rem; font-weight:600;">Phase 2 Total: <span class="text--accent">$134K investment</span> &rarr; <span class="text--green">$163K annual savings</span></p>
+    <span class="slide-num">6 / 10</span>
+  </div>
+
+  <!-- ==================== SLIDE 7: LONG-TERM ==================== -->
+  <div class="slide" id="slide-7">
+    <span class="tag tag--orange animate delay-1">6-12+ Months</span>
+    <h2 class="animate delay-2">Long-Term Transformations</h2>
+    <div class="animate delay-3">
+      <div class="rec">
+        <div class="rec__num">8</div>
+        <div class="rec__body">
+          <h4>Unified Vendor Invoice Portal</h4>
+          <p>Single submission via SAP Ariba/Coupa. PO flip eliminates re-entry. Target 60%+ vendor adoption. <strong class="text--green">Payback: 20 months</strong></p>
+          <div class="rec__tags">
+            <span style="background:var(--green-muted);color:var(--green);">Impact 7/10</span>
+            <span style="background:var(--accent-glow);color:var(--accent);">$52K/yr savings</span>
+          </div>
+        </div>
+      </div>
+      <div class="rec">
+        <div class="rec__num">9</div>
+        <div class="rec__body">
+          <h4>Predictive Exception Management (ML)</h4>
+          <p>ML model predicts high-risk invoices before exceptions occur. Root cause analysis targets systemic issues. <strong class="text--green">Payback: 22 months</strong></p>
+          <div class="rec__tags">
+            <span style="background:var(--orange-muted);color:var(--orange);">Impact 6/10</span>
+            <span style="background:var(--accent-glow);color:var(--accent);">$31K/yr savings</span>
+          </div>
+        </div>
+      </div>
+      <div class="rec">
+        <div class="rec__num">10</div>
+        <div class="rec__body">
+          <h4>Automated Vendor Banking Management</h4>
+          <p>Self-service banking updates with pre-payment validation. 90% fewer payment failures. <strong class="text--green">Payback: 13 months</strong></p>
+          <div class="rec__tags">
+            <span style="background:var(--orange-muted);color:var(--orange);">Impact 5/10</span>
+            <span style="background:var(--accent-glow);color:var(--accent);">$17K/yr savings</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="animate delay-4" style="margin-top:0.5rem; font-size:0.85rem; font-weight:600;">Phase 3 Total: <span class="text--accent">$158K investment</span> &rarr; <span class="text--green">$99K annual savings</span></p>
+    <span class="slide-num">7 / 10</span>
+  </div>
+
+  <!-- ==================== SLIDE 8: ROADMAP ==================== -->
+  <div class="slide" id="slide-8">
+    <span class="tag tag--blue animate delay-1">Implementation</span>
+    <h2 class="animate delay-2">Phased Roadmap</h2>
+    <div class="roadmap animate delay-3">
+      <div class="phase phase--1">
+        <div class="phase__title">Phase 1 — Months 1-3</div>
+        <h3 style="font-size:0.9rem; color:var(--text); margin-bottom:0.4em;">Quick Wins</h3>
+        <ul>
+          <li>Eliminate print-scan workflow</li>
+          <li>Tiered auto-approval rules</li>
+          <li>Mobile approval notifications</li>
+          <li>Fix payment notifications</li>
+        </ul>
+        <p style="margin-top:0.6em; font-size:0.75rem;"><strong class="text--green">$61K/yr savings</strong><br>Investment: $32K</p>
+      </div>
+      <div class="phase phase--2">
+        <div class="phase__title">Phase 2 — Months 4-6</div>
+        <h3 style="font-size:0.9rem; color:var(--text); margin-bottom:0.4em;">Automation</h3>
+        <ul>
+          <li>IDP for invoice data capture</li>
+          <li>Intelligent PO matching</li>
+          <li>Discrepancy management workflow</li>
+        </ul>
+        <p style="margin-top:0.6em; font-size:0.75rem;"><strong class="text--green">$163K/yr savings</strong><br>Investment: $134K</p>
+      </div>
+      <div class="phase phase--3">
+        <div class="phase__title">Phase 3 — Months 7-12</div>
+        <h3 style="font-size:0.9rem; color:var(--text); margin-bottom:0.4em;">Transformation</h3>
+        <ul>
+          <li>Unified vendor portal</li>
+          <li>Predictive exception management</li>
+          <li>Vendor banking automation</li>
+        </ul>
+        <p style="margin-top:0.6em; font-size:0.75rem;"><strong class="text--green">$99K/yr savings</strong><br>Investment: $158K</p>
+      </div>
+    </div>
+    <span class="slide-num">8 / 10</span>
+  </div>
+
+  <!-- ==================== SLIDE 9: ROI ==================== -->
+  <div class="slide" id="slide-9">
+    <span class="tag tag--green animate delay-1">Financial Impact</span>
+    <h2 class="animate delay-2">Investment & ROI</h2>
+    <div class="grid-2 animate delay-3">
+      <div>
+        <div style="display:flex; flex-direction:column; gap:0.6rem;">
+          <div class="metric" style="text-align:left; padding:0.8rem 1rem;">
+            <div class="metric__label" style="margin-bottom:0.2em;">Total Implementation Investment</div>
+            <div class="metric__value text--accent" style="font-size:1.6rem;">$145K - $185K</div>
+          </div>
+          <div class="metric" style="text-align:left; padding:0.8rem 1rem;">
+            <div class="metric__label" style="margin-bottom:0.2em;">Estimated Annual Savings</div>
+            <div class="metric__value text--green" style="font-size:1.6rem;">$127K - $156K</div>
+          </div>
+          <div class="metric" style="text-align:left; padding:0.8rem 1rem;">
+            <div class="metric__label" style="margin-bottom:0.2em;">Expected Payback Period</div>
+            <div class="metric__value text--orange" style="font-size:1.6rem;">14 - 18 Months</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="margin-bottom:0.6em;">Savings by Phase</h3>
+        <div class="roi-bar">
+          <div class="roi-bar__label">Phase 1</div>
+          <div class="roi-bar__track">
+            <div class="roi-bar__fill" style="width:38%; background:var(--green);">$61K</div>
+          </div>
+        </div>
+        <div class="roi-bar">
+          <div class="roi-bar__label">Phase 2</div>
+          <div class="roi-bar__track">
+            <div class="roi-bar__fill" style="width:100%; background:var(--accent);">$163K</div>
+          </div>
+        </div>
+        <div class="roi-bar">
+          <div class="roi-bar__label">Phase 3</div>
+          <div class="roi-bar__track">
+            <div class="roi-bar__fill" style="width:61%; background:var(--purple);">$99K</div>
+          </div>
+        </div>
+        <h3 style="margin-top:1em; margin-bottom:0.6em;">Target Improvements</h3>
+        <div style="display:flex; gap:0.6rem;">
+          <div class="card" style="flex:1; text-align:center;">
+            <div class="card__number text--green" style="font-size:1.6rem;">72%</div>
+            <div class="card__label">Cycle Time Reduction</div>
+          </div>
+          <div class="card" style="flex:1; text-align:center;">
+            <div class="card__number text--green" style="font-size:1.6rem;">70%</div>
+            <div class="card__label">Straight-Through Rate</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <span class="slide-num">9 / 10</span>
+  </div>
+
+  <!-- ==================== SLIDE 10: NEXT STEPS ==================== -->
+  <div class="slide" id="slide-10">
+    <span class="tag tag--green animate delay-1">Moving Forward</span>
+    <h2 class="animate delay-2">Recommended Next Steps</h2>
+    <ol class="steps animate delay-3">
+      <li>
+        <div>
+          <strong style="color:var(--text);">Validate process analysis with stakeholders</strong>
+          <p>Review findings with AP team, purchasing, and finance leadership to confirm accuracy.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong style="color:var(--text);">Secure executive sponsorship for Phase 1</strong>
+          <p>$32K investment with 5-month average payback — low risk, high visibility.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong style="color:var(--text);">Engage IT for SAP configuration changes</strong>
+          <p>Tiered approvals and notification fixes are config changes — no procurement needed.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong style="color:var(--text);">Begin IDP vendor evaluation</strong>
+          <p>Start demos with ABBYY Vantage and Azure AI Document Intelligence for Phase 2.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <strong style="color:var(--text);">Establish KPI baseline measurements</strong>
+          <p>Capture current cycle time, cost-per-invoice, error rates to measure progress.</p>
+        </div>
+      </li>
+    </ol>
+    <span class="slide-num">10 / 10</span>
+  </div>
+
+</div>
+
+<!-- ===== NAVIGATION ===== -->
+<div class="nav" id="nav"></div>
+
+<script>
+  const deck = document.getElementById('deck');
+  const nav = document.getElementById('nav');
+  const slides = document.querySelectorAll('.slide');
+  let current = 0;
+
+  // Build nav dots
+  slides.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'nav__dot' + (i === 0 ? ' nav__dot--active' : '');
+    dot.addEventListener('click', () => goTo(i));
+    nav.appendChild(dot);
+  });
+
+  function goTo(index) {
+    if (index < 0 || index >= slides.length) return;
+    current = index;
+    slides[current].scrollIntoView({ behavior: 'smooth' });
+    document.querySelectorAll('.nav__dot').forEach((d, i) => {
+      d.classList.toggle('nav__dot--active', i === current);
+    });
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      goTo(current + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      goTo(current - 1);
+    }
+  });
+
+  // Scroll snap detection
+  let scrollTimer;
+  deck.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      const scrollTop = deck.scrollTop;
+      const slideHeight = window.innerHeight;
+      const newCurrent = Math.round(scrollTop / slideHeight);
+      if (newCurrent !== current) {
+        current = newCurrent;
+        document.querySelectorAll('.nav__dot').forEach((d, i) => {
+          d.classList.toggle('nav__dot--active', i === current);
+        });
+      }
+    }, 50);
+  });
+</script>
+
+</body>
+</html>

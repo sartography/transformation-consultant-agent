@@ -1,0 +1,106 @@
+Business Process Interview Transcript
+Process: General Ledger Month-End Close
+Interviewee: Rachel Martinez, Corporate Controller
+Interviewer: David Chen, Process Consultant
+Date: January 15, 2026
+Duration: 55 minutes
+
+---
+
+[Interviewer]: Thanks for taking the time today, Rachel. I'd like to understand your month-end close process from start to finish. Can you walk me through what happens when the calendar flips to a new month?
+
+[Interviewee]: Sure. So our close process officially kicks off on the first business day after month-end. We have a close calendar that we publish about two weeks before each close, and it has all the deadlines for each team. The accounting team - that's myself and four staff accountants - we own the overall process, but we're really dependent on a lot of other groups to hit their deadlines.
+
+[Interviewer]: What's the first thing that happens on day one?
+
+[Interviewee]: The first thing is we lock the prior period in our ERP system - we use SAP. That prevents anyone from posting transactions to the closed month. Then we send out what we call the "close kickoff" email to all department heads reminding them of their deadlines. AP needs to have all invoices entered by end of day one. AR needs to apply all cash receipts. Payroll needs to confirm the final payroll has posted.
+
+[Interviewer]: How long does your typical close take from start to finish?
+
+[Interviewee]: We're currently at eight business days, which is honestly too long. Industry benchmark for a company our size is four to five days. We've been trying to get it down but there are a lot of dependencies and manual work that slow us down.
+
+[Interviewer]: Let's dig into that. After day one, what happens next?
+
+[Interviewee]: Days two and three are what I call the "sub-ledger close" phase. AP runs their three-way match process and posts any accruals for invoices received but not yet entered. AR reviews the aging report and we discuss any reserves we need for doubtful accounts. Fixed assets runs depreciation - that's automated in SAP, thankfully. Inventory does their valuation adjustments if there were any physical counts or write-offs.
+
+[Interviewer]: Who handles each of those sub-ledgers?
+
+[Interviewee]: AP is managed by Tom and his team of three. AR is Sarah with two people. Fixed assets is actually handled by Maria who also does some of the GL work. Inventory is owned by the warehouse team but they work with us on the accounting entries. The challenge is coordinating all of them - if AP is late, it delays everything downstream.
+
+[Interviewer]: What are some of the specific pain points in those first few days?
+
+[Interviewee]: The biggest issue is the three-way match in AP. We get maybe 200 invoices a month, and probably 30 to 40 percent have some kind of discrepancy - wrong price, wrong quantity, missing PO. Each of those requires someone to research it, contact the vendor or the requester, and resolve it. That can take days for some invoices. We end up accruing a lot just to close on time.
+
+[Interviewer]: After the sub-ledgers close, what's next?
+
+[Interviewee]: Days four and five are the "journal entry" phase. This is where we record all the manual adjustments. Prepaid expenses, accrued expenses, deferred revenue recognition, intercompany eliminations if there are any. We have about 60 recurring journal entries each month and maybe another 20 to 30 non-recurring ones depending on what happened that period.
+
+[Interviewer]: How are those journal entries prepared and reviewed?
+
+[Interviewee]: That's actually one of our more painful areas. The staff accountants prepare the entries in Excel - we have templates for the recurring ones. They calculate the amounts, then manually key them into SAP. I review and approve each one before it posts. The problem is the Excel templates are all over the place. Some are really old, some have broken formulas, and I've found errors a few times where someone fat-fingered a number during data entry.
+
+[Interviewer]: What kind of errors have you seen?
+
+[Interviewee]: Last quarter we had a $50,000 prepaid expense that got recorded to the wrong account. It was supposed to be software maintenance but it went to hardware. We didn't catch it until the external auditors asked about it. Another time someone transposed digits and we had a $15,000 variance we couldn't explain for two days. These things happen when you're manually keying hundreds of line items.
+
+[Interviewer]: After journal entries, what's the next phase?
+
+[Interviewee]: Days six and seven are reconciliations. Every balance sheet account needs to be reconciled - we have about 150 accounts that require monthly reconciliation. The staff accountants prepare the recs in Excel, attach supporting documentation, and I review them. Bank reconciliations are the most critical - we have 12 bank accounts and those have to tie to the penny.
+
+[Interviewer]: How long do the reconciliations typically take?
+
+[Interviewee]: Too long. The actual reconciliation work is maybe two days, but the back-and-forth when something doesn't tie can add another day or two. Last month we had a $23,000 difference in our main operating account that took almost a full day to track down. Turned out to be a wire transfer that the bank posted on the 31st but we didn't record until the 1st.
+
+[Interviewer]: What systems or tools are you using for the reconciliations?
+
+[Interviewee]: It's all Excel. We have a shared drive with folders for each account, and each month gets its own subfolder. The accountant downloads the GL balance from SAP, exports the bank statement from the bank portal, and manually compares them in a spreadsheet template. Supporting documents get saved as PDFs in the same folder. It's very manual and there's no real workflow - I just get an email when something is ready for my review.
+
+[Interviewer]: And day eight?
+
+[Interviewee]: Day eight is the final review and reporting. I review the trial balance, check that all the key accounts look reasonable compared to prior periods, run our variance analysis against budget, and then prepare the management reporting package. That goes to the CFO and the executive team. If everything looks good, we lock the period in SAP and we're done.
+
+[Interviewer]: What does the variance analysis look like?
+
+[Interviewee]: It's another Excel workbook. We compare actuals to budget and prior year for every P&L line item. Anything over 10% or $25,000 variance needs an explanation. I spend probably half a day just writing up the explanations, chasing down department heads to understand why their expenses were over or under.
+
+[Interviewer]: What would you say are the top three things that slow down your close?
+
+[Interviewee]: Number one is definitely the manual journal entries - the Excel templates, the data entry into SAP, the review cycles. Number two is waiting on other departments. We can't close until AP, AR, payroll, and inventory all finish their work. If someone's on vacation or just busy with other priorities, we slip. Number three is the reconciliations. They're so manual and time-consuming, and when there's an issue, it can really derail the timeline.
+
+[Interviewer]: Are there any controls or checkpoints built into the process?
+
+[Interviewee]: We have a close checklist in Excel that everyone updates. It has about 80 line items with who's responsible, the deadline, and a checkbox for completion. I check it twice a day during close. We also have a daily standup call at 9 AM during close week where everyone reports their status. But honestly, things still slip through. The checklist isn't automated - if someone forgets to update it, I don't know there's a problem until I start asking questions.
+
+[Interviewer]: What about segregation of duties? Who can post journal entries versus who approves them?
+
+[Interviewee]: The staff accountants prepare and enter the entries, but they're in a "parked" status until I approve them. I'm the only one who can release parked entries to post. Same with the reconciliations - they prepare, I review and sign off. Bank reconciliations specifically require two signatures - mine and the CFO's for any account over $100,000.
+
+[Interviewer]: If you could wave a magic wand and fix one thing about this process, what would it be?
+
+[Interviewee]: I'd get rid of all the Excel templates for journal entries and reconciliations. We need a proper close management tool that has workflows, automated data pulls from SAP, and a dashboard so I can see status in real-time instead of chasing people for updates. I know these tools exist - I've seen demos of BlackLine and FloQast - but we haven't been able to get budget approval. They say we're too small, but I think the time we waste doing everything manually costs more than the software would.
+
+[Interviewer]: How much time do you think you and your team spend on the close each month?
+
+[Interviewee]: The four staff accountants are basically 100% dedicated to close activities for that full eight days. That's 32 person-days right there. I'm probably spending 60 to 70 percent of my time on close activities during that week. Add in the time from AP, AR, and other groups, and we're probably looking at 50 person-days total each month. If we could cut that in half, we'd have so much more capacity for analysis and value-added work.
+
+[Interviewer]: What about the quality of your financial reporting? Are you confident in the numbers when they go out?
+
+[Interviewee]: I'm confident, but it takes a lot of effort to get there. We have good controls, but they're mostly manual reviews. Every month I worry that we're going to miss something because we're rushing to hit the deadline. The auditors have noted that our documentation could be better - sometimes the supporting schedules don't clearly tie to the GL, or the preparer didn't sign and date the reconciliation. It's sloppy but when you're under pressure, things get skipped.
+
+[Interviewer]: Is there anything about the current process that works well?
+
+[Interviewee]: The daily standups during close are helpful - they create accountability. The recurring journal entry templates, even though they're Excel, do save time compared to creating everything from scratch. And the close calendar with published deadlines helps everyone plan. We've also gotten better about accruing things when we don't have final numbers - we used to wait and wait for perfect information, but now we accrue based on estimates and true up the next month.
+
+[Interviewer]: Any major changes on the horizon that could affect the close process?
+
+[Interviewee]: We're implementing a new HR system next quarter which will change how payroll feeds into the GL. And there's talk about acquiring a small company, which would add a whole new entity to consolidate. I'm nervous about both of those - we're already stretched thin. If we add complexity without fixing the underlying process issues, we're going to break.
+
+[Interviewer]: This has been really helpful, Rachel. Any final thoughts?
+
+[Interviewee]: Just that I know we need to modernize. My team is talented but they're spending too much time on low-value data entry and reconciliation work. We should be doing more analysis, more business partnering, more forward-looking work. But we can't get there until we fix the close process. I hope this project helps make the case for some investment in better tools and automation.
+
+[Interviewer]: Thank you so much for your time. This gives us a clear picture of the current state and the opportunities for improvement.
+
+---
+
+End of Transcript

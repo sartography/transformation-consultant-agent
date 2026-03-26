@@ -174,10 +174,10 @@ class TestComponentValidation:
         """Test BPMNGenerator input validation."""
         component = BPMNGenerator(api_key=api_key)
 
-        # Test missing required section
+        # Test missing required sections
         result = component.process("# Some analysis\n\nBut missing required sections")
         assert not result.success
-        assert "missing required section" in result.error.lower()
+        assert "missing" in result.error.lower() and "required section" in result.error.lower()
 
 
 if __name__ == "__main__":

@@ -48,9 +48,15 @@ class BPMNGenerator(BaseComponent):
 
         # Check for required sections
         required_sections = ["## Process Steps", "## Actors and Roles", "## Decision Points"]
-        for section in required_sections:
-            if section not in input_data:
-                raise ValueError(f"Analysis missing required section: {section}")
+        missing_sections = [s for s in required_sections if s not in input_data]
+        if missing_sections:
+            if len(missing_sections) == 1:
+                raise ValueError(f"Analysis missing required section: {missing_sections[0]}")
+            else:
+                raise ValueError(
+                    f"Analysis missing {len(missing_sections)} required sections: "
+                    f"{', '.join(missing_sections)}"
+                )
 
         return True
 

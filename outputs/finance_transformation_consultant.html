@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Process-First AI Framework for Transformation</title>
+    <style>
+        /* ============================================
+           GLOBAL RESET & VARIABLES
+           ============================================ */
+        @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400;600;700&family=Playfair+Display:wght@600;700&display=swap');
+
+        :root {
+            --primary-dark: #0B1D3A;
+            --primary-blue: #1B3A5C;
+            --accent-blue: #2E6BAD;
+            --light-blue: #4A90D9;
+            --highlight: #3DADEB;
+            --bg-light: #F4F7FB;
+            --bg-card: #FFFFFF;
+            --text-dark: #1A2332;
+            --text-mid: #4A5568;
+            --text-light: #718096;
+            --border: #D2DBE6;
+            --accent-green: #27AE60;
+            --accent-red: #C0392B;
+            --accent-orange: #E67E22;
+            --accent-gold: #D4A843;
+            --shadow-sm: 0 1px 3px rgba(11,29,58,0.08);
+            --shadow-md: 0 4px 12px rgba(11,29,58,0.1);
+            --shadow-lg: 0 8px 30px rgba(11,29,58,0.12);
+            --font-body: 'Source Sans 3', 'Segoe UI', Arial, sans-serif;
+            --font-display: 'Playfair Display', Georgia, serif;
+        }
+
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: var(--font-body);
+            background: var(--primary-dark);
+        }
+
+        /* ============================================
+           SLIDE CONTAINER
+           ============================================ */
+        .deck {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 48px 64px 64px;
+            background: var(--bg-light);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Slide header bar */
+        .slide::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--accent-blue), var(--highlight));
+        }
+
+        /* ============================================
+           TYPOGRAPHY
+           ============================================ */
+        .slide-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-family: var(--font-body);
+            font-weight: 700;
+            font-size: 14px;
+            letter-spacing: 3px;
+            color: var(--primary-blue);
+            text-transform: uppercase;
+        }
+
+        .slide-number {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-light);
+            letter-spacing: 1px;
+        }
+
+        h2 {
+            font-family: var(--font-display);
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            line-height: 1.25;
+            margin-bottom: 6px;
+            flex-shrink: 0;
+        }
+
+        h3.slide-subtitle {
+            font-family: var(--font-body);
+            font-size: 15px;
+            font-weight: 400;
+            color: var(--text-mid);
+            line-height: 1.4;
+            margin-bottom: 20px;
+            flex-shrink: 0;
+        }
+
+        /* ============================================
+           COMMON COMPONENTS
+           ============================================ */
+        .callout-box {
+            background: var(--primary-dark);
+            color: #FFFFFF;
+            padding: 14px 24px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+            margin-top: auto;
+            flex-shrink: 0;
+            letter-spacing: 0.3px;
+        }
+
+        .callout-box.quote {
+            background: linear-gradient(135deg, var(--primary-blue), var(--accent-blue));
+            font-style: italic;
+            font-weight: 400;
+            font-size: 15px;
+        }
+
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        /* ============================================
+           SLIDE 1: TITLE
+           ============================================ */
+        .slide.title-slide {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-blue) 60%, var(--accent-blue) 100%);
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .slide.title-slide::before {
+            display: none;
+        }
+
+        .title-slide .logo {
+            color: rgba(255,255,255,0.6);
+            font-size: 16px;
+            letter-spacing: 6px;
+            margin-bottom: 40px;
+        }
+
+        .title-slide h1 {
+            font-family: var(--font-display);
+            font-size: 56px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+            line-height: 1.15;
+        }
+
+        .title-slide .tagline {
+            font-size: 22px;
+            font-weight: 300;
+            color: var(--highlight);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .title-slide .sub-tagline {
+            font-size: 16px;
+            color: rgba(255,255,255,0.7);
+            font-weight: 400;
+        }
+
+        /* ============================================
+           SLIDE 2: 5-STAGE FRAMEWORK (CHEVRONS)
+           ============================================ */
+        .chevron-container {
+            display: flex;
+            gap: 4px;
+            margin: 20px 0;
+        }
+
+        .chevron {
+            flex: 1;
+            position: relative;
+            background: var(--accent-blue);
+            color: #FFFFFF;
+            padding: 18px 20px 18px 32px;
+            clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%, 20px 50%);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 90px;
+        }
+
+        .chevron:first-child {
+            clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 50%, calc(100% - 20px) 100%, 0 100%);
+            padding-left: 20px;
+        }
+
+        .chevron .stage-num {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.85;
+            margin-bottom: 4px;
+        }
+
+        .chevron .stage-name {
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .chevron .stage-desc {
+            font-size: 11px;
+            font-weight: 300;
+            opacity: 0.85;
+            margin-top: 3px;
+        }
+
+        .chevron:nth-child(1) { background: var(--primary-dark); }
+        .chevron:nth-child(2) { background: var(--primary-blue); }
+        .chevron:nth-child(3) { background: var(--accent-blue); }
+        .chevron:nth-child(4) { background: var(--light-blue); }
+        .chevron:nth-child(5) { background: var(--highlight); }
+
+        .chevron.focus-stage {
+            outline: 3px solid var(--accent-gold);
+            outline-offset: 2px;
+        }
+
+        /* ============================================
+           SLIDE 3: WHY TRANSFORMATIONS FAIL
+           ============================================ */
+        .path-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            flex: 1;
+        }
+
+        .path-box {
+            border-radius: 8px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .path-box.wrong {
+            background: #FDF2F2;
+            border: 2px solid #F5C6C6;
+        }
+
+        .path-box.right {
+            background: #F0F9F4;
+            border: 2px solid #A3D9B1;
+        }
+
+        .path-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .path-box.wrong .path-label { color: var(--accent-red); }
+        .path-box.right .path-label { color: var(--accent-green); }
+
+        .path-box h3 {
+            font-family: var(--font-display);
+            font-size: 22px;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+        }
+
+        .path-steps {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .path-steps li {
+            font-size: 14px;
+            color: var(--text-mid);
+            padding-left: 24px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .path-box.wrong .path-steps li::before {
+            content: '✕';
+            position: absolute;
+            left: 0;
+            color: var(--accent-red);
+            font-weight: 700;
+        }
+
+        .path-box.right .path-steps li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--accent-green);
+            font-weight: 700;
+        }
+
+        /* ============================================
+           SLIDE 4: LEFT/RIGHT - EXPERTISE + AI AGENTS
+           ============================================ */
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .split-panel {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 28px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .panel-icon.blue { background: rgba(46,107,173,0.1); color: var(--accent-blue); }
+        .panel-icon.teal { background: rgba(61,173,235,0.1); color: var(--highlight); }
+
+        .panel-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .split-panel h3 {
+            font-family: var(--font-display);
+            font-size: 18px;
+            color: var(--primary-dark);
+            margin-bottom: 2px;
+        }
+
+        .split-panel .panel-sub {
+            font-size: 13px;
+            color: var(--text-light);
+            font-weight: 400;
+        }
+
+        .credential-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .credential-list li {
+            font-size: 13.5px;
+            color: var(--text-mid);
+            padding-left: 22px;
+            position: relative;
+            line-height: 1.45;
+        }
+
+        .credential-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 7px;
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+            background: var(--accent-blue);
+        }
+
+        .agent-pipeline {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .agent-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 12px;
+            background: var(--bg-light);
+            border-radius: 6px;
+            border-left: 3px solid var(--highlight);
+        }
+
+        .agent-chip {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--highlight));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+            font-size: 14px;
+        }
+
+        .agent-step-content {
+            flex: 1;
+        }
+
+        .agent-step-content strong {
+            font-size: 13px;
+            color: var(--primary-dark);
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .agent-step-content span {
+            font-size: 12px;
+            color: var(--text-light);
+            line-height: 1.35;
+        }
+
+        /* ============================================
+           SLIDE 5: AGENT PIPELINE VISUAL
+           ============================================ */
+        .pipeline-visual {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .pipeline-tunnel {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .pipeline-stage {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stage-header-bar {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue));
+            color: #FFFFFF;
+            padding: 10px 12px;
+            text-align: center;
+        }
+
+        .stage-header-text {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            line-height: 1.35;
+        }
+
+        .stage-body {
+            padding: 14px 12px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+        }
+
+        .agent-icon-large {
+            font-size: 32px;
+            margin-bottom: 10px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(46,107,173,0.08);
+            border-radius: 50%;
+        }
+
+        .stage-tasks {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .stage-task {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-size: 11.5px;
+            color: var(--text-mid);
+            line-height: 1.4;
+        }
+
+        .task-arrow {
+            color: var(--highlight);
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .stage-output {
+            margin-top: auto;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 11px;
+            color: var(--text-mid);
+            width: 100%;
+            text-align: center;
+            line-height: 1.35;
+        }
+
+        .stage-output strong {
+            color: var(--accent-blue);
+        }
+
+        .pipeline-connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 32px;
+        }
+
+        .pipeline-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 12px;
+            padding: 10px 20px;
+            background: var(--primary-dark);
+            border-radius: 6px;
+            flex-shrink: 0;
+        }
+
+        .pipeline-footer-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--highlight);
+        }
+
+        .pipeline-footer-item {
+            font-size: 13px;
+            color: rgba(255,255,255,0.85);
+            font-weight: 500;
+        }
+
+        .pipeline-footer-divider {
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* ============================================
+           SLIDE 5: IDEATION
+           ============================================ */
+        .quad-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .quad-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .quad-card h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quad-card h4 .card-icon {
+            font-size: 18px;
+        }
+
+        .quad-card p {
+            font-size: 13px;
+            color: var(--text-mid);
+            line-height: 1.45;
+        }
+
+        .quad-card ul {
+            list-style: none;
+            margin-top: 6px;
+        }
+
+        .quad-card ul li {
+            font-size: 12.5px;
+            color: var(--text-mid);
+            padding: 3px 0;
+            padding-left: 16px;
+            position: relative;
+            line-height: 1.4;
+        }
+
+        .quad-card ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--highlight);
+            font-weight: 700;
+        }
+
+        /* ============================================
+           SLIDE 7: METHODOLOGY OVERVIEW
+           ============================================ */
+        .method-flow {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin: 16px 0;
+        }
+
+        .method-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+            position: relative;
+        }
+
+        .method-card .method-num {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            color: #FFFFFF;
+            font-size: 16px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+        }
+
+        .method-card h4 {
+            font-family: var(--font-display);
+            font-size: 17px;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+        }
+
+        .method-card p {
+            font-size: 13px;
+            color: var(--text-mid);
+            line-height: 1.4;
+        }
+
+        /* Arrow between method cards */
+        .method-card:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-blue);
+            font-size: 18px;
+            font-weight: 700;
+            z-index: 1;
+        }
+
+        /* ============================================
+           SLIDES 7-10: PHASE DETAIL GRIDS
+           ============================================ */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .detail-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .detail-card h4 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 6px;
+        }
+
+        .detail-card p {
+            font-size: 13px;
+            color: var(--text-mid);
+            line-height: 1.5;
+        }
+
+        .detail-card .tag {
+            display: inline-block;
+            background: rgba(46,107,173,0.1);
+            color: var(--accent-blue);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-top: 8px;
+        }
+
+        /* Process flow example (Slide 9 - Before/After) */
+        .redesign-comparison {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 12px;
+            flex-shrink: 0;
+        }
+
+        .redesign-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 8px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+        }
+
+        .redesign-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            min-width: 56px;
+            text-align: center;
+        }
+
+        .before-label { color: var(--accent-red); }
+        .after-label { color: var(--accent-green); }
+
+        .redesign-flow {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .flow-step-sm {
+            flex: 1;
+            text-align: center;
+            padding: 8px 6px 20px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            line-height: 1.3;
+            position: relative;
+            color: #FFFFFF;
+        }
+
+        .manual-step {
+            background: #8B9DAF;
+        }
+
+        .auto-step {
+            background: var(--accent-blue);
+        }
+
+        .flow-arrow-sm {
+            color: var(--text-light);
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .auto-tag {
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 8px;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+
+        .tag-manual { background: rgba(0,0,0,0.2); color: rgba(255,255,255,0.9); }
+        .tag-bottleneck { background: #C0392B; color: #FFFFFF; }
+        .tag-ai { background: rgba(255,255,255,0.25); color: #FFFFFF; }
+        .tag-rpa { background: rgba(255,255,255,0.25); color: #FFFFFF; }
+        .tag-wf { background: rgba(255,255,255,0.25); color: #FFFFFF; }
+        .tag-erp { background: rgba(255,255,255,0.25); color: #FFFFFF; }
+
+        /* Roadmap table (Slide 10) */
+        .roadmap-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            font-size: 13px;
+        }
+
+        .roadmap-table thead {
+            background: var(--primary-blue);
+            color: #FFFFFF;
+        }
+
+        .roadmap-table th {
+            padding: 12px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .roadmap-table td {
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-mid);
+        }
+
+        .roadmap-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .roadmap-table tr:nth-child(even) {
+            background: var(--bg-light);
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .priority-badge.high {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .priority-badge.medium {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        /* ============================================
+           SLIDE 11: RESULTS
+           ============================================ */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            flex: 1;
+            align-items: start;
+        }
+
+        .result-card {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            text-align: center;
+        }
+
+        .result-card .result-metric {
+            font-family: var(--font-display);
+            font-size: 40px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            margin-bottom: 6px;
+        }
+
+        .result-card .result-label {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 8px;
+        }
+
+        .result-card .result-desc {
+            font-size: 13px;
+            color: var(--text-mid);
+            line-height: 1.45;
+        }
+
+        /* ============================================
+           SLIDE 13: INVESTMENT & TIMELINE
+           ============================================ */
+        .invest-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 28px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .invest-summary {
+            background: var(--primary-dark);
+            color: #FFFFFF;
+            border-radius: 8px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .invest-summary h3 {
+            font-family: var(--font-display);
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .invest-summary .price {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--highlight);
+            margin-bottom: 4px;
+        }
+
+        .invest-summary .price-note {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 20px;
+        }
+
+        .invest-summary .invest-includes {
+            list-style: none;
+        }
+
+        .invest-summary .invest-includes li {
+            font-size: 13.5px;
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .invest-summary .invest-includes li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--highlight);
+        }
+
+        .timeline-phases {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .timeline-phase {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            background: var(--bg-card);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .phase-week {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--accent-blue);
+            min-width: 70px;
+            flex-shrink: 0;
+        }
+
+        .phase-title {
+            font-size: 13.5px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            flex: 1;
+        }
+
+        .phase-desc {
+            font-size: 12px;
+            color: var(--text-light);
+            flex: 1.2;
+        }
+
+        /* ============================================
+           NAVIGATION
+           ============================================ */
+        .nav-dots {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .nav-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(11,29,58,0.2);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+
+        .nav-dot.active {
+            background: var(--accent-blue);
+            transform: scale(1.3);
+        }
+
+        .nav-dot:hover {
+            background: var(--light-blue);
+        }
+
+        /* ============================================
+           ANIMATIONS
+           ============================================ */
+        .slide.active .animate-in {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in:nth-child(1) { animation-delay: 0.1s; }
+        .animate-in:nth-child(2) { animation-delay: 0.2s; }
+        .animate-in:nth-child(3) { animation-delay: 0.3s; }
+        .animate-in:nth-child(4) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <div class="deck">
+
+        <!-- ==========================================
+             SLIDE 1: TITLE
+             ========================================== -->
+        <div class="slide title-slide active" data-slide="0">
+            <div class="logo">PROCESS-FIRST AI</div>
+            <h1>Process-First AI Framework<br>for Transformation</h1>
+            <p class="tagline">Process First. Technology Second. Results Always.</p>
+            <p class="sub-tagline">Finance Operations Transformation Partners</p>
+        </div>
+
+        <!-- ==========================================
+             SLIDE 2: 5-STAGE FRAMEWORK
+             ========================================== -->
+        <div class="slide" data-slide="1">
+            <div class="slide-meta">
+                <div class="logo">PROCESS-FIRST AI</div>
+                <div class="slide-number">02 / 13</div>
+            </div>
+            <h2>From Idea to Impact: Five Stages of AI Transformation Executed in Partnership with Your Team</h2>
+            <h3 class="slide-subtitle">A structured five-stage approach from ideation to ongoing support</h3>
+            <div class="content-area">
+                <div class="chevron-container">
+                    <div class="chevron">
+                        <span class="stage-num">Stage 1</span>
+                        <span class="stage-name">Ideation</span>
+                        <span class="stage-desc">Discover opportunities</span>
+                    </div>
+                    <div class="chevron focus-stage">
+                        <span class="stage-num">Stage 2</span>
+                        <span class="stage-name">Evaluate</span>
+                        <span class="stage-desc">Map &amp; analyze</span>
+                    </div>
+                    <div class="chevron focus-stage">
+                        <span class="stage-num">Stage 3</span>
+                        <span class="stage-name">Detail Design</span>
+                        <span class="stage-desc">Re-design &amp; roadmap</span>
+                    </div>
+                    <div class="chevron">
+                        <span class="stage-num">Stage 4</span>
+                        <span class="stage-name">Implement</span>
+                        <span class="stage-desc">Execute the plan</span>
+                    </div>
+                    <div class="chevron">
+                        <span class="stage-num">Stage 5</span>
+                        <span class="stage-name">Sustain</span>
+                        <span class="stage-desc">Continuous improvement</span>
+                    </div>
+                </div>
+            </div>
+            <div class="callout-box">
+                Our engagement focuses on Stages 2 &amp; 3: Evaluate and Detail Design
+            </div>
+        </div>
+
+        <!-- ==========================================
+             SLIDE 3: WHY TRANSFORMATIONS FAIL
+             ========================================== -->
+        <div class="slide" data-slide="2">
+            <div class="slide-meta">
+                <div class="logo">PROCESS-FIRST AI</div>
+                <div class="slide-number">03 / 13</div>
+            </div>
+            <h2>Why Finance Transformations Fail</h2>
+            <h3 class="slide-subtitle">The difference between wasted investment and measurable results</h3>
+            <div class="content-area">
+                <div class="path-comparison">
+                    <div class="path-box wrong">
+                        <div class="path-label">✕ Wrong Path</div>
+                        <h3>Technology First</h3>
+                        <ul class="path-steps">
+                            <li>Rush to implement AI tools</li>
+                            <li>Automate existing broken processes</li>
+                            <li>Lack of process expertise</li>
+                            <li>No understanding of current-state waste</li>
+                            <li>Expensive failures and rework</li>
+                        </ul>
+                    </div>
+                    <div class="path-box right">
+                        <div class="path-label">✓ Right Path</div>
+                        <h3>Process First</h3>
+                        <ul class="path-steps">
+                            <li>Map current state thoroughly</li>
+                            <li>Identify and eliminate waste</li>
+                            <li>Design optimized processes</li>
+                            <li>Apply the right technology to the right problem</li>
+                            <li>Measurable, sustainable results</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             SLIDE 4: EXPERTISE + AI AGENTS (LEFT/RIGHT)
+             ========================================== -->
+        <div class="slide" data-slide="3">
+            <div class="slide-meta">
+                <div class="logo">PROCESS-FIRST AI</div>
+                <div class="slide-number">04 / 13</div>
+            </div>
+            <h2>Domain Expertise Amplified by Purpose-Built AI</h2>
+            <h3 class="slide-subtitle">Finance operations veterans backed by intelligent agents designed for transformation work</h3>
+            <div class="split-layout">
+                <!-- LEFT: SME Credentials -->
+                <div class="split-panel">
+                    <div class="panel-header">
+                        <div class="panel-icon blue">🏛</div>
+                        <div>
+                            <h3>Finance Operations Experts</h3>
+                            <p class="panel-sub">Who we are and what we bring</p>
+                        </div>
+                    </div>
+                    <ul class="credential-list">
+                        <li><strong>Big 4 advisory background</strong> with hands-on finance transformation experience across Fortune 500 organizations</li>
+                        <li><strong>20+ years in finance operations</strong> — AP, AR, GL, financial close, and intercompany accounting</li>
+                        <li><strong>Shared services expertise</strong> in process standardization, consolidation, and operational excellence</li>
+                        <li><strong>We've sat in your chair</strong> — we know the pressures of month-end close, audit cycles, and stakeholder demands</li>
+                        <li><strong>ERP fluency</strong> across SAP, Oracle, and Microsoft ecosystems</li>
+                    </ul>
+                </div>
+                <!-- RIGHT: AI Agent Pipeline -->
+                <div class="split-panel">
+                    <div class="panel-header">
+                        <div class="panel-icon teal">⚡</div>
+                        <div>
+                            <h3>AI-Powered Transformation Agents</h3>
+                            <p class="panel-sub">Purpose-built tools that accelerate every phase</p>
+                        </div>
+                    </div>
+                    <div class="agent-pipeline">
+                        <div class="agent-step">
+                            <div class="agent-chip">🧠</div>
+                            <div class="agent-step-content">
+                                <strong>Transcript Analysis</strong>
+                                <span>Extracts process details, pain points, and volumes from stakeholder interviews</span>
+                            </div>
+                        </div>
+                        <div class="agent-step">
+                            <div class="agent-chip">🧠</div>
+                            <div class="agent-step-content">
+                                <strong>BPMN Generation</strong>
+                                <span>Creates production-quality process maps with swimlanes and decision gates</span>
+                            </div>
+                        </div>
+                        <div class="agent-step">
+                            <div class="agent-chip">🧠</div>
+                            <div class="agent-step-content">
+                                <strong>Process Optimization</strong>
+                                <span>Generates recommendations with ROI analysis and implementation roadmaps</span>
+                            </div>
+                        </div>
+                        <div class="agent-step">
+                            <div class="agent-chip">🧠</div>
+                            <div class="agent-step-content">
+                                <strong>End-to-End Pipeline</strong>
+                                <span>Interview → analysis → BPMN → recommendations — validated by our SMEs</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             SLIDE 5: AGENT PIPELINE VISUAL
+             ========================================== -->
+        <div class="slide" data-slide="4">
+            <div class="slide-meta">
+                <div class="logo">PROCESS-FIRST AI</div>
+                <div class="slide-number">05 / 13</div>
+            </div>
+            <h2>How Our AI Agents Accelerate Every Phase</h2>
+            <h3 class="slide-subtitle">Four specialized agents working in sequence — each output feeds the next</h3>
+            <div class="pipeline-visual">
+                <!-- Pipeline tunnel -->
+                <div class="pipeline-tunnel">
+                    <!-- Stage 1 -->
+                    <div class="pipeline-stage">
+                        <div class="stage-header-bar">
+                            <span class="stage-header-text">DISCOVERY &amp;<br>TRANSCRIPTION</span>
+                        </div>
+                        <div class="stage-body">
+                            <div class="agent-icon-large">🤖</div>
+                            <div class="stage-tasks">
+                                <div class="stage-task">
+                                    <span class="task-arrow">→</span>
+                                    <span>Joins stakeholder interviews &amp; process walkthroughs</span>
+                                </div>
+                                <div class="stage-task">
+                                    <span class="task-arrow">→</span>
+                                    <span>Extracts pain points, volumes, cycle times</span>
+                                </div>
+                                <div class="stage-task">
+                                    <span class="task-arrow">→</span>
+                                    <span>Identifies roles, systems, handoffs</span>
+                                </div>
+                            </div>
+                            <div class="stage-output">
+                                <strong>Output:</strong> Structured process analysis with key findings
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Connector -->
+                    <div class="pipeline-connector">
+                        <svg viewBox="0 0 32 60" width="32" height="60"><polygon points="0,0 24,30 0,60" fill="var(--accent-blue)" opacity="0.3"/><polygon points="8,10 24,30 8,50" fill="var(--accent-blue)" opacity="0.5"/></svg>
+                    </div>
+                    <!-- Stage 2 -->
+                    <div class="pipeline-stage">
+                        <div class="stage-header-bar">
+                            <span class="stage-header-text">BPMN PROCESS<br>MAPPING</span>
+                        </div>
+                        <div class="stage-body">
+                            <div class="agent-icon-large">🤖</div>
+                            <div class="stage-tasks">
+                                <div class="stage-task">
+                                    <span class="task-arrow">→</span>
+                                    <span>Builds BPMN 2.0 diagrams with swimlanes</span>
+                                </div>
+                                <div class="stage-task">
+                                    <span class="task-arrow">→</span>
+                                    <span>Maps to APQC framework taxonomy</span>
+                                </div>
+                                <div class="stage-task">
+                                    <span class="task-arrow">→</span>
+                                    <span>Includes decision gates &amp; exception paths</span>
+                                </div>
+                            </div>
+                            <div class="stage-output">
+                                <strong>Output:</strong> Production-ready BPMN files (Camunda-compatible)
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Connector -->
+                    <div class="pipeline-connector">
+                        <svg viewBox="0 0 32 60" width="32" height="60"><polygon points="0,0 24,30 0,60" fill="var(--accent-blue)" opacity="0.3"/><polygon points="8,10 24,30 8,50" fill="var(--accent-blue)" opacity="0.5"/></svg>
+                    </div>
+                    <!-- Stage 3 -->
+                    <div class="pipeline-stage">
+                        <div class="stage-header-bar">
+                            <span class="stage-header-text">PROCESS<br>OPTIMIZATION</span>
+                        </div>
+                        <div class="stage-body">
+                            <div class="agent-icon-large">🤖</div>
+                            <div class="stage-tasks">
+                                <div class="stage-task">
+                                    <span class="task-arrow">→</span>
+                                    <span>Reviews transcripts + BPMN for improvements</span>
+                                </div>
+                                <div class="stage-task">
+                                    <span class="task-arrow">→</span>
+                                    <span>ROI analysis with 3-year NPV per initiative</span>
+                                </div>
+                                <div class="stage-task">
+                                    <span class="task-arrow">→</span>
+                                    <span>Technology &amp; vendor recommendations</span>
+                                </div>
+                            </div>
+                            <div class="stage-output">
+                                <strong>Output:</strong> Prioritized recommendations with business cases
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Connector -->
+                    <div class="pipeline-connector">
+                        <svg viewBox="0 0 32 60" width="32" height="60"><polygon points="0,0 24,30 0,60" fill="var(--accent-blue)" opacity="0.3"/><polygon points="8,10 24,30 8,50" fill="var(--accent-blue)" opacity="0.5"/></svg>
+                    </div>
+                    <!-- Stage 4 -->
+                    <div class="pipeline-stage">
+                        <div class="stage-header-bar">
+                            <span class="stage-header-text">ROADMAP &amp;<br>PROJECT PLANNING</span>
+                        </div>
+                        <div class="stage-body">
+                            <div class="agent-icon-large">🤖</div>
+                            <div class="stage-tasks">
+                                <div class="stage-task">
+                                    <span class="task-arrow">→</span>
+                                    <span>Builds phased implementation roadmap</span>
+                                </div>
+                                <div class="stage-task">
+                                    <span class="task-arrow">→</span>
+                                    <span>Dependencies, milestones, resource plans</span>
+                                </div>
+                                <div class="stage-task">
+                                    <span class="task-arrow">→</span>
+                                    <span>Change management &amp; risk mitigation</span>
+                                </div>
+                            </div>
+                            <div class="stage-output">
+                                <strong>Output:</strong> Executable project plans &amp; timelines
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Bottom bar: validated by humans -->
+                <div class="pipeline-footer">
+                    <span class="pipeline-footer-label">HUMAN VALIDATED</span>
+                    <span class="pipeline-footer-item">✓ SME Review</span>
+                    <span class="pipeline-footer-divider">|</span>
+                    <span class="pipeline-footer-item">✓ Client Walkthrough</span>
+                    <span class="pipeline-footer-divider">|</span>
+                    <span class="pipeline-footer-item">✓ Stakeholder Sign-off</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             SLIDE 6: STAGE 1 — IDEATION
+             ========================================== -->
+        <div class="slide" data-slide="5">
+            <div class="slide-meta">
+                <div class="logo">PROCESS-FIRST AI</div>
+                <div class="slide-number">06 / 13</div>
+            </div>
+            <h2>Stage 1: Ideation — Expanding the Art of the Possible</h2>
+            <h3 class="slide-subtitle">Collaborative discovery to uncover high-value AI and automation opportunities</h3>
+            <div class="quad-grid">
+                <div class="quad-card">
+                    <h4><span class="card-icon">🎯</span> Facilitated Workshops</h4>
+                    <p>Cross-functional brainstorming sessions to surface pain points, volume drivers, and automation candidates across finance operations.</p>
+                    <ul>
+                        <li>Process pain point mapping</li>
+                        <li>Opportunity prioritization</li>
+                        <li>Stakeholder alignment</li>
+                    </ul>
+                </div>
+                <div class="quad-card">
+                    <h4><span class="card-icon">🔍</span> Third-Party Demonstrations</h4>
+                    <p>Curated vendor showcases and proof-of-concept presentations tailored to your specific technology landscape and process needs.</p>
+                    <ul>
+                        <li>Vendor capability reviews</li>
+                        <li>POC design and evaluation</li>
+                        <li>Build vs. buy analysis</li>
+                    </ul>
+                </div>
+                <div class="quad-card">
+                    <h4><span class="card-icon">📊</span> Internal Best Practices</h4>
+                    <p>Leverage successes and lessons learned from within your organization to identify proven approaches worth scaling.</p>
+                    <ul>
+                        <li>Cross-BU success stories</li>
+                        <li>Replicable automation patterns</li>
+                        <li>Change management lessons</li>
+                    </ul>
+                </div>
+                <div class="quad-card">
+                    <h4><span class="card-icon">🚀</span> Emerging Trends &amp; Frontier AI</h4>
+                    <p>Real-world examples of cutting-edge applications reshaping finance operations today.</p>
+                    <ul>
+                        <li>Multi-agent systems (15% productivity gains)</li>
+                        <li>AI-powered fraud detection</li>
+                        <li>Industrial copilots (35% cost savings)</li>
+                        <li>Autonomous compliance monitoring</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             SLIDE 7: METHODOLOGY OVERVIEW (STAGES 2 & 3)
+             ========================================== -->
+        <div class="slide" data-slide="6">
+            <div class="slide-meta">
+                <div class="logo">PROCESS-FIRST AI</div>
+                <div class="slide-number">07 / 13</div>
+            </div>
+            <h2>How We Work Together</h2>
+            <h3 class="slide-subtitle">Stages 2 &amp; 3: A four-phase methodology co-developed with your team</h3>
+            <div class="content-area">
+                <div class="method-flow">
+                    <div class="method-card">
+                        <div class="method-num">1</div>
+                        <h4>Map</h4>
+                        <p>Co-develop process taxonomy and value stream maps across your finance operations</p>
+                    </div>
+                    <div class="method-card">
+                        <div class="method-num">2</div>
+                        <h4>Analyze</h4>
+                        <p>Identify bottlenecks, duplication, manual workarounds, and process waste</p>
+                    </div>
+                    <div class="method-card">
+                        <div class="method-num">3</div>
+                        <h4>Re-Design</h4>
+                        <p>Prioritize optimization opportunities — traditional automation and AI</p>
+                    </div>
+                    <div class="method-card">
+                        <div class="method-num">4</div>
+                        <h4>Roadmap</h4>
+                        <p>Build an executable implementation plan with ROI projections</p>
+                    </div>
+                </div>
+            </div>
+            <div class="callout-box">
+                Co-developed with your team, not done to you
+            </div>
+        </div>
+
+        <!-- ==========================================
+             SLIDE 8: PHASE 1 — MAP
+             ========================================== -->
+        <div class="slide" data-slide="7">
+            <div class="slide-meta">
+                <div class="logo">PROCESS-FIRST AI</div>
+                <div class="slide-number">08 / 13</div>
+            </div>
+            <h2>Phase 1: Map — Understand the Current State</h2>
+            <h3 class="slide-subtitle">Build a complete, accurate picture of your finance processes before changing anything</h3>
+            <div class="detail-grid">
+                <div class="detail-card">
+                    <h4>Process Taxonomy</h4>
+                    <p>Comprehensive catalog of all finance processes organized by function (AP, AR, GL, Close) with volume metrics, owners, and system dependencies.</p>
+                    <span class="tag">Deliverable: Process Catalog</span>
+                </div>
+                <div class="detail-card">
+                    <h4>Value Stream Mapping</h4>
+                    <p>End-to-end visualization of work flow, cycle times, wait times, and handoffs — revealing where time and effort are truly spent.</p>
+                    <span class="tag">Deliverable: Value Stream Maps</span>
+                </div>
+                <div class="detail-card">
+                    <h4>BPMN Process Maps</h4>
+                    <p>Production-ready BPMN 2.0 diagrams with swimlanes, decision gates, and exception paths — generated by our AI agents and validated by SMEs.</p>
+                    <span class="tag">Deliverable: Executable BPMN Files</span>
+                </div>
+                <div class="detail-card">
+                    <h4>SIPOC Diagrams</h4>
+                    <p>Suppliers, Inputs, Process, Outputs, and Customers mapped for each process stage — creating clarity around boundaries and dependencies.</p>
+                    <span class="tag">Deliverable: SIPOC Documentation</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             SLIDE 9: PHASE 2 — ANALYZE
+             ========================================== -->
+        <div class="slide" data-slide="8">
+            <div class="slide-meta">
+                <div class="logo">PROCESS-FIRST AI</div>
+                <div class="slide-number">09 / 13</div>
+            </div>
+            <h2>Phase 2: Analyze — Find the Real Problems</h2>
+            <h3 class="slide-subtitle">Go beyond symptoms to identify root causes and quantify the cost of inefficiency</h3>
+            <div class="detail-grid">
+                <div class="detail-card">
+                    <h4>Bottleneck Analysis</h4>
+                    <p>Identify process constraints, approval delays, and single points of failure. Quantify the impact in hours, cost, and cycle time.</p>
+                    <span class="tag">Impact: Cycle Time Reduction</span>
+                </div>
+                <div class="detail-card">
+                    <h4>Waste Identification</h4>
+                    <p>Categorize non-value-added activities: manual rework, duplicate data entry, unnecessary handoffs, print-scan workarounds, and over-processing.</p>
+                    <span class="tag">Impact: Labor Savings</span>
+                </div>
+                <div class="detail-card">
+                    <h4>Compliance &amp; Risk Review</h4>
+                    <p>Assess audit readiness, segregation of duties, and control gaps. Flag processes where manual steps introduce compliance risk.</p>
+                    <span class="tag">Impact: Risk Reduction</span>
+                </div>
+                <div class="detail-card">
+                    <h4>Benchmark Comparison</h4>
+                    <p>Compare your current-state metrics against industry benchmarks and leading practice targets. Set realistic improvement targets.</p>
+                    <span class="tag">Impact: Strategic Prioritization</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             SLIDE 10: PHASE 3 — RE-DESIGN
+             ========================================== -->
+        <div class="slide" data-slide="9">
+            <div class="slide-meta">
+                <div class="logo">PROCESS-FIRST AI</div>
+                <div class="slide-number">10 / 13</div>
+            </div>
+            <h2>Phase 3: Re-Design — Build the Future State</h2>
+            <h3 class="slide-subtitle">Design optimized processes and match the right technology to each opportunity</h3>
+            <div class="detail-grid">
+                <div class="detail-card">
+                    <h4>Process Optimization</h4>
+                    <p>Eliminate waste, reduce handoffs, and streamline workflows. Design for straight-through processing.</p>
+                    <span class="tag">Deliverable: Future-State Maps</span>
+                </div>
+                <div class="detail-card">
+                    <h4>Technology Matching</h4>
+                    <p>Match each opportunity to the right solution: RPA, IDP, AI agents, or workflow automation.</p>
+                    <span class="tag">Deliverable: Tech Recommendations</span>
+                </div>
+                <div class="detail-card">
+                    <h4>ROI Modeling</h4>
+                    <p>Cost-benefit analysis with implementation costs, 3-year NPV, payback period, and risk assessment.</p>
+                    <span class="tag">Deliverable: Business Cases</span>
+                </div>
+                <div class="detail-card">
+                    <h4>Quick Wins</h4>
+                    <p>High-impact, low-effort improvements deployable in 0-3 months to build momentum early.</p>
+                    <span class="tag">Deliverable: Quick Win Playbook</span>
+                </div>
+            </div>
+            <!-- Before / After Process Comparison -->
+            <div class="redesign-comparison">
+                <div class="redesign-row">
+                    <div class="redesign-label before-label">BEFORE</div>
+                    <div class="redesign-flow">
+                        <div class="flow-step-sm manual-step">Invoice<br>Received<span class="auto-tag tag-manual">Manual</span></div>
+                        <span class="flow-arrow-sm">→</span>
+                        <div class="flow-step-sm manual-step">Print &amp;<br>Scan<span class="auto-tag tag-manual">Manual</span></div>
+                        <span class="flow-arrow-sm">→</span>
+                        <div class="flow-step-sm manual-step">Key Data<br>Entry<span class="auto-tag tag-manual">Manual</span></div>
+                        <span class="flow-arrow-sm">→</span>
+                        <div class="flow-step-sm manual-step">Search<br>PO<span class="auto-tag tag-manual">Manual</span></div>
+                        <span class="flow-arrow-sm">→</span>
+                        <div class="flow-step-sm manual-step">Manager<br>Approval<span class="auto-tag tag-bottleneck">Bottleneck</span></div>
+                        <span class="flow-arrow-sm">→</span>
+                        <div class="flow-step-sm manual-step">Schedule<br>Payment<span class="auto-tag tag-manual">Manual</span></div>
+                    </div>
+                </div>
+                <div class="redesign-row">
+                    <div class="redesign-label after-label">AFTER</div>
+                    <div class="redesign-flow">
+                        <div class="flow-step-sm auto-step">Email<br>Intake<span class="auto-tag tag-ai">⚡ AI</span></div>
+                        <span class="flow-arrow-sm">→</span>
+                        <div class="flow-step-sm auto-step">IDP<br>Capture<span class="auto-tag tag-ai">⚡ AI</span></div>
+                        <span class="flow-arrow-sm">→</span>
+                        <div class="flow-step-sm auto-step">Auto PO<br>Match<span class="auto-tag tag-rpa">⚡ RPA</span></div>
+                        <span class="flow-arrow-sm">→</span>
+                        <div class="flow-step-sm auto-step">Smart<br>Routing<span class="auto-tag tag-wf">⚡ Workflow</span></div>
+                        <span class="flow-arrow-sm">→</span>
+                        <div class="flow-step-sm auto-step">Auto<br>Payment<span class="auto-tag tag-erp">⚡ ERP</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             SLIDE 11: PHASE 4 — ROADMAP
+             ========================================== -->
+        <div class="slide" data-slide="10">
+            <div class="slide-meta">
+                <div class="logo">PROCESS-FIRST AI</div>
+                <div class="slide-number">11 / 13</div>
+            </div>
+            <h2>Phase 4: Roadmap — Your Execution Plan</h2>
+            <h3 class="slide-subtitle">A prioritized, phased implementation plan you can act on immediately</h3>
+            <div class="content-area">
+                <table class="roadmap-table">
+                    <thead>
+                        <tr>
+                            <th>Initiative</th>
+                            <th>Phase</th>
+                            <th>Timeline</th>
+                            <th>Est. Annual Savings</th>
+                            <th>Priority</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Standardize JE Templates &amp; SAP Upload</td>
+                            <td>Quick Win</td>
+                            <td>Month 1-2</td>
+                            <td>$25K</td>
+                            <td><span class="priority-badge high">High</span></td>
+                        </tr>
+                        <tr>
+                            <td>Implement Close Management Platform</td>
+                            <td>Foundation</td>
+                            <td>Month 1-3</td>
+                            <td>$48K</td>
+                            <td><span class="priority-badge high">High</span></td>
+                        </tr>
+                        <tr>
+                            <td>Intelligent Document Processing (AP)</td>
+                            <td>Optimization</td>
+                            <td>Month 4-6</td>
+                            <td>$65K</td>
+                            <td><span class="priority-badge high">High</span></td>
+                        </tr>
+                        <tr>
+                            <td>Automated Bank Reconciliation</td>
+                            <td>Optimization</td>
+                            <td>Month 4-7</td>
+                            <td>$30K</td>
+                            <td><span class="priority-badge medium">Medium</span></td>
+                        </tr>
+                        <tr>
+                            <td>AI-Powered Exception Management</td>
+                            <td>Transformation</td>
+                            <td>Month 8-12</td>
+                            <td>$40K</td>
+                            <td><span class="priority-badge medium">Medium</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="callout-box">
+                Production-ready artifacts, not PowerPoint recommendations
+            </div>
+        </div>
+
+        <!-- ==========================================
+             SLIDE 12: PROVEN RESULTS
+             ========================================== -->
+        <div class="slide" data-slide="11">
+            <div class="slide-meta">
+                <div class="logo">PROCESS-FIRST AI</div>
+                <div class="slide-number">12 / 13</div>
+            </div>
+            <h2>Measurable Results</h2>
+            <h3 class="slide-subtitle">What our clients achieve through the Process-First AI Framework</h3>
+            <div class="content-area">
+                <div class="results-grid">
+                    <div class="result-card">
+                        <div class="result-metric">5-10×</div>
+                        <div class="result-label">Return on Investment</div>
+                        <div class="result-desc">Efficiency gains, error reduction, and capacity recovery deliver multiples of the engagement cost within 12-18 months.</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-metric">40-60%</div>
+                        <div class="result-label">Cycle Time Reduction</div>
+                        <div class="result-desc">Month-end close from 8 days to 4. Invoice processing from 25 days to under 10. AP discrepancy rates cut in half.</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-metric">100%</div>
+                        <div class="result-label">Actionable Deliverables</div>
+                        <div class="result-desc">Every engagement produces executable BPMN maps, detailed business cases, and a prioritized roadmap — not slide decks gathering dust.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             SLIDE 13: INVESTMENT & TIMELINE
+             ========================================== -->
+        <div class="slide" data-slide="12">
+            <div class="slide-meta">
+                <div class="logo">PROCESS-FIRST AI</div>
+                <div class="slide-number">13 / 13</div>
+            </div>
+            <h2>Investment &amp; Timeline</h2>
+            <h3 class="slide-subtitle">One month. Clear deliverables. Measurable outcomes.</h3>
+            <div class="invest-layout">
+                <div class="invest-summary">
+                    <h3>Simple Engagement Model</h3>
+                    <div class="price">$25,000</div>
+                    <div class="price-note">per month · typical engagement: 1 month</div>
+                    <ul class="invest-includes">
+                        <li>Complete process taxonomy</li>
+                        <li>Executable BPMN process maps</li>
+                        <li>SIPOC diagrams for each stage</li>
+                        <li>Detailed optimization recommendations</li>
+                        <li>Prioritized roadmap with ROI</li>
+                        <li>AI agent-generated artifacts</li>
+                    </ul>
+                </div>
+                <div class="timeline-phases">
+                    <div class="timeline-phase">
+                        <div class="phase-week">Week 1</div>
+                        <div class="phase-title">Discovery &amp; Kickoff</div>
+                        <div class="phase-desc">Stakeholder interviews, transcript capture, scope confirmation</div>
+                    </div>
+                    <div class="timeline-phase">
+                        <div class="phase-week">Week 2</div>
+                        <div class="phase-title">Map &amp; Document</div>
+                        <div class="phase-desc">Process taxonomy, BPMN maps, SIPOC diagrams</div>
+                    </div>
+                    <div class="timeline-phase">
+                        <div class="phase-week">Week 3</div>
+                        <div class="phase-title">Analyze &amp; Assess</div>
+                        <div class="phase-desc">Bottleneck analysis, waste identification, benchmarking</div>
+                    </div>
+                    <div class="timeline-phase">
+                        <div class="phase-week">Week 4</div>
+                        <div class="phase-title">Re-Design &amp; Roadmap</div>
+                        <div class="phase-desc">Optimization plan, ROI modeling, executive presentation</div>
+                    </div>
+                    <div class="timeline-phase">
+                        <div class="phase-week">Week 4+</div>
+                        <div class="phase-title">Handoff &amp; Support</div>
+                        <div class="phase-desc">Deliverables walkthrough, implementation guidance, Q&amp;A</div>
+                    </div>
+                    <div class="timeline-phase" style="background: var(--primary-dark); border-color: var(--primary-dark);">
+                        <div class="phase-week" style="color: var(--highlight);">Ongoing</div>
+                        <div class="phase-title" style="color: #FFFFFF;">Optional Implementation Support</div>
+                        <div class="phase-desc" style="color: rgba(255,255,255,0.7);">Extended engagement for execution oversight</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navigation Dots -->
+    <div class="nav-dots" id="navDots"></div>
+
+    <script>
+        // ==========================================
+        // SLIDE NAVIGATION
+        // ==========================================
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+
+        // Build nav dots
+        const navDots = document.getElementById('navDots');
+        slides.forEach((_, i) => {
+            const dot = document.createElement('button');
+            dot.className = 'nav-dot' + (i === 0 ? ' active' : '');
+            dot.addEventListener('click', () => goToSlide(i));
+            navDots.appendChild(dot);
+        });
+
+        function goToSlide(n) {
+            if (n < 0 || n >= slides.length) return;
+            slides[currentSlide].classList.remove('active');
+            document.querySelectorAll('.nav-dot')[currentSlide].classList.remove('active');
+            currentSlide = n;
+            slides[currentSlide].classList.add('active');
+            document.querySelectorAll('.nav-dot')[currentSlide].classList.add('active');
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+                e.preventDefault();
+                goToSlide(currentSlide + 1);
+            } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                goToSlide(currentSlide - 1);
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                goToSlide(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                goToSlide(slides.length - 1);
+            }
+        });
+
+        // Touch/swipe support
+        let touchStartX = 0;
+        document.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
+        document.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].screenX;
+            if (Math.abs(diff) > 50) {
+                diff > 0 ? goToSlide(currentSlide + 1) : goToSlide(currentSlide - 1);
+            }
+        });
+    </script>
+</body>
+</html>
