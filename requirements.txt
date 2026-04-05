@@ -1,6 +1,7 @@
 # Core Dependencies
 anthropic>=0.40.0              # Claude API client
 python-dotenv>=1.0.0           # Environment variable management
+streamlit>=1.32.0              # Web GUI for the transformation pipeline
 
 # Jupyter and Interactive Development
 jupyter>=1.0.0                 # Jupyter notebook environment

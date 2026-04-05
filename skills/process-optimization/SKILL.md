@@ -240,7 +240,7 @@ Produce a structured markdown document following this exact format:
 - Show clear cause-and-effect: "Because [pain point], we recommend [solution] which will [benefit]"
 
 ### Use Industry Best Practices
-- Reference APQC benchmarks when available
+- Use generally available industry benchmarks and common industry ranges
 - Consider industry-standard technologies for the domain (e.g., SAP Concur for expenses, Coupa for procurement)
 - Mention relevant standards (EDI, cXML, BPMN, etc.) where applicable
 
