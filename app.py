@@ -185,6 +185,12 @@ if result is not None:
         analysis = outputs.get("Transcript Analysis", "")
         if analysis:
             st.markdown(analysis)
+            st.download_button(
+                label="Download analysis (.md)",
+                data=analysis,
+                file_name="process-analysis.md",
+                mime="text/markdown",
+            )
         else:
             st.info("No analysis output available.")
 
@@ -205,6 +211,12 @@ if result is not None:
         recommendations = outputs.get("Process Optimization", "")
         if recommendations:
             st.markdown(recommendations)
+            st.download_button(
+                label="Download recommendations (.md)",
+                data=recommendations,
+                file_name="process-recommendations.md",
+                mime="text/markdown",
+            )
         else:
             st.info("No recommendations output available.")
 
