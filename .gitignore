@@ -59,3 +59,6 @@ htmlcov/
 
 # Logs
 *.log
+
+# Gator Dollars database
+gator-dollars/gator_dollars.db
