@@ -40,6 +40,58 @@ def get_students_by_classroom(classroom_id: int) -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def add_student(username: str, password: str, display_name: str,
+                 classroom_id: int) -> tuple[bool, str]:
+    from auth import hash_password
+    conn = get_connection()
+    try:
+        existing = conn.execute(
+            "SELECT id FROM users WHERE username = ?", (username,)
+        ).fetchone()
+        if existing:
+            return False, f"Username '{username}' is already taken."
+
+        cursor = conn.execute(
+            "INSERT INTO users (username, password_hash, display_name, role, classroom_id) "
+            "VALUES (?, ?, ?, 'student', ?)",
+            (username, hash_password(password), display_name, classroom_id),
+        )
+        student_id = cursor.lastrowid
+        conn.execute(
+            "INSERT INTO student_balances (student_id, balance) VALUES (?, 0)",
+            (student_id,),
+        )
+        conn.commit()
+        return True, f"Student '{display_name}' added successfully!"
+    except Exception as e:
+        conn.rollback()
+        return False, str(e)
+    finally:
+        conn.close()
+
+
+def remove_student(student_id: int) -> tuple[bool, str]:
+    conn = get_connection()
+    try:
+        user = conn.execute("SELECT display_name FROM users WHERE id = ? AND role = 'student'",
+                            (student_id,)).fetchone()
+        if not user:
+            return False, "Student not found."
+        conn.execute("DELETE FROM student_balances WHERE student_id = ?", (student_id,))
+        conn.execute("DELETE FROM transactions WHERE from_user_id = ? OR to_user_id = ?",
+                     (student_id, student_id))
+        conn.execute("DELETE FROM nominations WHERE nominator_id = ? OR nominee_id = ?",
+                     (student_id, student_id))
+        conn.execute("DELETE FROM users WHERE id = ?", (student_id,))
+        conn.commit()
+        return True, f"Student '{user['display_name']}' removed."
+    except Exception as e:
+        conn.rollback()
+        return False, str(e)
+    finally:
+        conn.close()
+
+
 def get_classrooms() -> list[dict]:
     conn = get_connection()
     rows = conn.execute(
