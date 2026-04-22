@@ -2,17 +2,26 @@
 <bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Transformation Consultant Agent - BPMN Generation Skill" exporterVersion="1.0">
   <bpmn:collaboration id="Collaboration_1">
     <bpmn:participant id="Participant_EmployeeOnboarding" name="Employee Onboarding" processRef="Process_EmployeeOnboarding" />
+    <bpmn:participant id="Participant_0fchvsp" name="CheckPoint" />
+    <bpmn:participant id="Participant_1g3d4yu" name="Workday (ATS &#38; HRIS)" />
+    <bpmn:messageFlow id="Flow_195lpbk" sourceRef="Activity_2_ConductBackgroundCheck" targetRef="Participant_0fchvsp" />
+    <bpmn:messageFlow id="Flow_0zy1csl" sourceRef="Activity_4_SetUpEmployeeRecord" targetRef="Participant_1g3d4yu" />
+    <bpmn:messageFlow id="Flow_1q49plq" sourceRef="Participant_1g3d4yu" targetRef="Activity_4_SetUpEmployeeRecord" />
+    <bpmn:messageFlow id="Flow_0om7r6z" sourceRef="Activity_1_InitiateNewHire" targetRef="Participant_1g3d4yu" />
+    <bpmn:messageFlow id="Flow_0jrjuh3" sourceRef="Participant_1g3d4yu" targetRef="Activity_1_InitiateNewHire" />
     <bpmn:group id="Group_1fg8oba" categoryValueRef="CategoryValue_1kufwoe" />
   </bpmn:collaboration>
   <bpmn:process id="Process_EmployeeOnboarding" name="Employee Onboarding Process" isExecutable="true">
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="Lane_HRCoordinator" name="HR Coordinator">
-        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1_BackgroundResult</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_2_ConductBackgroundCheck</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_2_EmploymentType</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_0de9h3u</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_4_SetUpEmployeeRecord</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_ContractorOnboarding</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_1ebpew3</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Activity_5_ProvisionITAccessEquipment</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_159lvh8</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_6_OrientationAlignment</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_7_PreChecklistComplete</bpmn:flowNodeRef>
@@ -20,21 +29,19 @@
         <bpmn:flowNodeRef>Activity_9_PerformCheckIns</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>EndEvent_1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_7_ConductOrientation</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>StartEvent_1</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_1_InitiateNewHire</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_2_ConductBackgroundCheck</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_4_SetUpEmployeeRecord</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Activity_5_ProvisionITAccessEquipment</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_HRDirector" name="HR Director">
         <bpmn:flowNodeRef>Activity_3_ReviewBackgroundIssues</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_4_BackgroundDecision</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>EndEvent_OfferRescinded</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_ITDepartment" name="IT Department">
         <bpmn:flowNodeRef>Activity_5a_ProvisionRemoteEquipment</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Activity_5b_ProvisionOnsiteEquipment</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_3_WorkLocation</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gateway_5_WorkspaceJoin</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>EndEvent_OfferRescinded</bpmn:flowNodeRef>
       </bpmn:lane>
       <bpmn:lane id="Lane_Facilities" name="Facilities Department">
         <bpmn:flowNodeRef>Activity_6_AssignWorkspace</bpmn:flowNodeRef>
@@ -47,9 +54,6 @@
         <bpmn:flowNodeRef>Gateway_8_ITAccessStatus</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:startEvent id="StartEvent_1" name="Signed Offer Letter Received">
-      <bpmn:outgoing>Flow_1</bpmn:outgoing>
-    </bpmn:startEvent>
     <bpmn:exclusiveGateway id="Gateway_1_BackgroundResult" name="Background Check Clean?" default="Flow_4_Clean">
       <bpmn:incoming>Flow_3</bpmn:incoming>
       <bpmn:outgoing>Flow_4_Clean</bpmn:outgoing>
@@ -93,36 +97,6 @@
     <bpmn:sequenceFlow id="Flow_26_Accessible" name="Yes (80-85%)" sourceRef="Gateway_8_ITAccessStatus" targetRef="Activity_8_CompleteComplianceTraining" />
     <bpmn:sequenceFlow id="Flow_29" sourceRef="Activity_8_CompleteComplianceTraining" targetRef="Activity_9_PerformCheckIns" />
     <bpmn:sequenceFlow id="Flow_30" sourceRef="Activity_9_PerformCheckIns" targetRef="EndEvent_1" />
-    <bpmn:userTask id="Activity_3_ReviewBackgroundIssues" name="Review Background Check Issues">
-      <bpmn:incoming>Flow_5_Issues</bpmn:incoming>
-      <bpmn:outgoing>Flow_6</bpmn:outgoing>
-    </bpmn:userTask>
-    <bpmn:subProcess id="Activity_1_InitiateNewHire" name="4.1.1 Initiate New Hire Process">
-      <bpmn:incoming>Flow_1</bpmn:incoming>
-      <bpmn:outgoing>Flow_2</bpmn:outgoing>
-      <bpmn:startEvent id="Event_1baayo4">
-        <bpmn:outgoing>Flow_1d857gg</bpmn:outgoing>
-      </bpmn:startEvent>
-      <bpmn:sequenceFlow id="Flow_1d857gg" sourceRef="Event_1baayo4" targetRef="Activity_110k6mc" />
-      <bpmn:receiveTask id="Activity_110k6mc" name="Get Application and Interview Info">
-        <bpmn:incoming>Flow_1d857gg</bpmn:incoming>
-        <bpmn:outgoing>Flow_0i70okh</bpmn:outgoing>
-      </bpmn:receiveTask>
-      <bpmn:sequenceFlow id="Flow_0i70okh" sourceRef="Activity_110k6mc" targetRef="Activity_0shhlp4" />
-      <bpmn:scriptTask id="Activity_0shhlp4" name="Parse Info for Onboarding">
-        <bpmn:incoming>Flow_0i70okh</bpmn:incoming>
-        <bpmn:outgoing>Flow_02420tm</bpmn:outgoing>
-      </bpmn:scriptTask>
-      <bpmn:sequenceFlow id="Flow_02420tm" sourceRef="Activity_0shhlp4" targetRef="Activity_08yy1b7" />
-      <bpmn:userTask id="Activity_08yy1b7" name="Confirm Onboarding Info">
-        <bpmn:incoming>Flow_02420tm</bpmn:incoming>
-        <bpmn:outgoing>Flow_13v69nd</bpmn:outgoing>
-      </bpmn:userTask>
-      <bpmn:endEvent id="Event_00f9tgb">
-        <bpmn:incoming>Flow_13v69nd</bpmn:incoming>
-      </bpmn:endEvent>
-      <bpmn:sequenceFlow id="Flow_13v69nd" sourceRef="Activity_08yy1b7" targetRef="Event_00f9tgb" />
-    </bpmn:subProcess>
     <bpmn:subProcess id="Activity_2_ConductBackgroundCheck" name="Request Background Check">
       <bpmn:incoming>Flow_2</bpmn:incoming>
       <bpmn:outgoing>Flow_3</bpmn:outgoing>
@@ -178,14 +152,6 @@
       </bpmn:serviceTask>
     </bpmn:subProcess>
     <bpmn:sequenceFlow id="Flow_0x3y0if" sourceRef="Activity_0de9h3u" targetRef="EndEvent_ContractorOnboarding" />
-    <bpmn:endEvent id="EndEvent_OfferRescinded" name="Offer Rescinded">
-      <bpmn:incoming>Flow_8_Rescind</bpmn:incoming>
-    </bpmn:endEvent>
-    <bpmn:exclusiveGateway id="Gateway_4_BackgroundDecision" name="Proceed with Hire?" default="Flow_7_Proceed">
-      <bpmn:incoming>Flow_6</bpmn:incoming>
-      <bpmn:outgoing>Flow_7_Proceed</bpmn:outgoing>
-      <bpmn:outgoing>Flow_8_Rescind</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
     <bpmn:exclusiveGateway id="Gateway_2_EmploymentType" name="Employment Type?" default="Flow_10_FullTime">
       <bpmn:incoming>Flow_9</bpmn:incoming>
       <bpmn:outgoing>Flow_10_FullTime</bpmn:outgoing>
@@ -359,6 +325,47 @@
       <bpmn:incoming>Flow_19_OrientationDay</bpmn:incoming>
       <bpmn:outgoing>Flow_22</bpmn:outgoing>
     </bpmn:task>
+    <bpmn:userTask id="Activity_3_ReviewBackgroundIssues" name="Review Background Check Issues">
+      <bpmn:incoming>Flow_5_Issues</bpmn:incoming>
+      <bpmn:outgoing>Flow_6</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:exclusiveGateway id="Gateway_4_BackgroundDecision" name="Proceed with Hire?" default="Flow_7_Proceed">
+      <bpmn:incoming>Flow_6</bpmn:incoming>
+      <bpmn:outgoing>Flow_7_Proceed</bpmn:outgoing>
+      <bpmn:outgoing>Flow_8_Rescind</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:endEvent id="EndEvent_OfferRescinded" name="Offer Rescinded">
+      <bpmn:incoming>Flow_8_Rescind</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:startEvent id="StartEvent_1" name="Signed Offer Letter Received">
+      <bpmn:outgoing>Flow_1</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:subProcess id="Activity_1_InitiateNewHire" name="4.1.1 Initiate New Hire Process">
+      <bpmn:incoming>Flow_1</bpmn:incoming>
+      <bpmn:outgoing>Flow_2</bpmn:outgoing>
+      <bpmn:startEvent id="Event_1baayo4">
+        <bpmn:outgoing>Flow_1d857gg</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:sequenceFlow id="Flow_1d857gg" sourceRef="Event_1baayo4" targetRef="Activity_110k6mc" />
+      <bpmn:receiveTask id="Activity_110k6mc" name="Get Application and Interview Info">
+        <bpmn:incoming>Flow_1d857gg</bpmn:incoming>
+        <bpmn:outgoing>Flow_0i70okh</bpmn:outgoing>
+      </bpmn:receiveTask>
+      <bpmn:sequenceFlow id="Flow_0i70okh" sourceRef="Activity_110k6mc" targetRef="Activity_0shhlp4" />
+      <bpmn:scriptTask id="Activity_0shhlp4" name="Parse Info for Onboarding">
+        <bpmn:incoming>Flow_0i70okh</bpmn:incoming>
+        <bpmn:outgoing>Flow_02420tm</bpmn:outgoing>
+      </bpmn:scriptTask>
+      <bpmn:sequenceFlow id="Flow_02420tm" sourceRef="Activity_0shhlp4" targetRef="Activity_08yy1b7" />
+      <bpmn:userTask id="Activity_08yy1b7" name="Confirm Onboarding Info">
+        <bpmn:incoming>Flow_02420tm</bpmn:incoming>
+        <bpmn:outgoing>Flow_13v69nd</bpmn:outgoing>
+      </bpmn:userTask>
+      <bpmn:endEvent id="Event_00f9tgb">
+        <bpmn:incoming>Flow_13v69nd</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_13v69nd" sourceRef="Activity_08yy1b7" targetRef="Event_00f9tgb" />
+    </bpmn:subProcess>
   </bpmn:process>
   <bpmn:category id="Category_0mqisg6">
     <bpmn:categoryValue id="CategoryValue_1kufwoe" value="4.1.2 Conduct Background Verification" />
@@ -366,33 +373,27 @@
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
       <bpmndi:BPMNShape id="Participant_EmployeeOnboarding_di" bpmnElement="Participant_EmployeeOnboarding" isHorizontal="true">
-        <dc:Bounds x="-90" y="-40" width="2970" height="1370" />
+        <dc:Bounds x="-40" y="-40" width="2920" height="1370" />
         <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_NewHire_di" bpmnElement="Lane_NewHire" isHorizontal="true">
-        <dc:Bounds x="70" y="1090" width="2810" height="240" />
+        <dc:Bounds x="120" y="1090" width="2760" height="240" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_HiringManager_di" bpmnElement="Lane_HiringManager" isHorizontal="true">
-        <dc:Bounds x="70" y="930" width="2810" height="160" />
+        <dc:Bounds x="120" y="930" width="2760" height="160" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_Facilities_di" bpmnElement="Lane_Facilities" isHorizontal="true">
-        <dc:Bounds x="70" y="770" width="2810" height="160" />
+        <dc:Bounds x="120" y="770" width="2760" height="160" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_ITDepartment_di" bpmnElement="Lane_ITDepartment" isHorizontal="true">
-        <dc:Bounds x="70" y="485" width="2810" height="285" />
+        <dc:Bounds x="120" y="485" width="2760" height="285" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_HRDirector_di" bpmnElement="Lane_HRDirector" isHorizontal="true">
-        <dc:Bounds x="70" y="280" width="2810" height="205" />
+        <dc:Bounds x="120" y="280" width="2760" height="205" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Lane_HRCoordinator_di" bpmnElement="Lane_HRCoordinator" isHorizontal="true">
-        <dc:Bounds x="70" y="-40" width="2810" height="320" />
+        <dc:Bounds x="120" y="-40" width="2760" height="320" />
         <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
-        <dc:Bounds x="220" y="187" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="200" y="230" width="76" height="27" />
-        </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_1_BackgroundResult_di" bpmnElement="Gateway_1_BackgroundResult" isMarkerVisible="true">
         <dc:Bounds x="600" y="180" width="50" height="50" />
@@ -401,13 +402,29 @@
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_1n9bryj_di" bpmnElement="Activity_3_ReviewBackgroundIssues">
-        <dc:Bounds x="575" y="360" width="100" height="80" />
+        <dc:Bounds x="575" y="310" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_4_BackgroundDecision_di" bpmnElement="Gateway_4_BackgroundDecision" isMarkerVisible="true">
-        <dc:Bounds x="785" y="375" width="50" height="50" />
+        <dc:Bounds x="785" y="325" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="845" y="386" width="64" height="27" />
+          <dc:Bounds x="845" y="336" width="64" height="27" />
         </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_OfferRescinded_di" bpmnElement="EndEvent_OfferRescinded">
+        <dc:Bounds x="792" y="422" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="770" y="465" width="80" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_1_di" bpmnElement="StartEvent_1">
+        <dc:Bounds x="182" y="187" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="161" y="230" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_17ejhgl_di" bpmnElement="Activity_2_ConductBackgroundCheck">
+        <dc:Bounds x="440" y="165" width="100" height="80" />
+        <bpmndi:BPMNLabel />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_2_EmploymentType_di" bpmnElement="Gateway_2_EmploymentType" isMarkerVisible="true">
         <dc:Bounds x="920" y="180" width="50" height="50" />
@@ -417,6 +434,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0wlrjfj_di" bpmnElement="Activity_0de9h3u">
         <dc:Bounds x="895" y="0" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0nwgodq_di" bpmnElement="Activity_4_SetUpEmployeeRecord">
+        <dc:Bounds x="760" y="165" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="EndEvent_ContractorOnboarding_di" bpmnElement="EndEvent_ContractorOnboarding">
         <dc:Bounds x="1052" y="22" width="36" height="36" />
@@ -441,6 +461,9 @@
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_5_WorkspaceJoin_di" bpmnElement="Gateway_5_WorkspaceJoin" isMarkerVisible="true">
         <dc:Bounds x="1455" y="695" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_19nlauo_di" bpmnElement="Activity_5_ProvisionITAccessEquipment">
+        <dc:Bounds x="1060" y="165" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Gateway_0ngrwp4_di" bpmnElement="Gateway_159lvh8">
         <dc:Bounds x="1215" y="180" width="50" height="50" />
@@ -488,30 +511,14 @@
         <dc:Bounds x="1870" y="165" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Activity_0g7585v_di" bpmnElement="Activity_1_InitiateNewHire">
-        <dc:Bounds x="300" y="165" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_17ejhgl_di" bpmnElement="Activity_2_ConductBackgroundCheck">
-        <dc:Bounds x="440" y="165" width="100" height="80" />
-        <bpmndi:BPMNLabel />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="EndEvent_OfferRescinded_di" bpmnElement="EndEvent_OfferRescinded">
-        <dc:Bounds x="607" y="452" width="36" height="36" />
-        <bpmndi:BPMNLabel>
-          <dc:Bounds x="585" y="495" width="80" height="14" />
-        </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_0nwgodq_di" bpmnElement="Activity_4_SetUpEmployeeRecord">
-        <dc:Bounds x="760" y="165" width="100" height="80" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Activity_19nlauo_di" bpmnElement="Activity_5_ProvisionITAccessEquipment">
-        <dc:Bounds x="1060" y="165" width="100" height="80" />
+        <dc:Bounds x="270" y="165" width="100" height="80" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flow_1_di" bpmnElement="Flow_1">
-        <di:waypoint x="256" y="205" />
-        <di:waypoint x="300" y="205" />
+        <di:waypoint x="218" y="205" />
+        <di:waypoint x="270" y="205" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_2_di" bpmnElement="Flow_2">
-        <di:waypoint x="400" y="205" />
+        <di:waypoint x="370" y="205" />
         <di:waypoint x="440" y="205" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_3_di" bpmnElement="Flow_3">
@@ -527,28 +534,27 @@
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_5_Issues_di" bpmnElement="Flow_5_Issues">
         <di:waypoint x="625" y="230" />
-        <di:waypoint x="625" y="360" />
+        <di:waypoint x="625" y="310" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="637" y="251" width="67" height="27" />
+          <dc:Bounds x="637" y="238" width="67" height="27" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_6_di" bpmnElement="Flow_6">
-        <di:waypoint x="675" y="400" />
-        <di:waypoint x="785" y="400" />
+        <di:waypoint x="675" y="350" />
+        <di:waypoint x="785" y="350" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_7_Proceed_di" bpmnElement="Flow_7_Proceed">
-        <di:waypoint x="810" y="375" />
+        <di:waypoint x="810" y="325" />
         <di:waypoint x="810" y="245" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="759" y="343" width="41" height="14" />
+          <dc:Bounds x="819" y="293" width="41" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_8_Rescind_di" bpmnElement="Flow_8_Rescind">
-        <di:waypoint x="810" y="425" />
-        <di:waypoint x="810" y="470" />
-        <di:waypoint x="643" y="470" />
+        <di:waypoint x="810" y="375" />
+        <di:waypoint x="810" y="422" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="733" y="433" width="68" height="14" />
+          <dc:Bounds x="816" y="380" width="68" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_9_di" bpmnElement="Flow_9">
@@ -661,9 +667,8 @@
         <di:waypoint x="1052" y="40" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_0u72w81_di" bpmnElement="Flow_0u72w81">
-        <di:waypoint x="1240" y="230" />
-        <di:waypoint x="1240" y="340" />
-        <di:waypoint x="1355" y="340" />
+        <di:waypoint x="1265" y="205" />
+        <di:waypoint x="1355" y="205" />
         <di:waypoint x="1355" y="505" />
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flow_1f5ejuv_di" bpmnElement="Flow_1f5ejuv">
@@ -684,8 +689,36 @@
         <di:waypoint x="1570" y="850" />
         <di:waypoint x="1570" y="230" />
       </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_0ismp9x_di" bpmnElement="Participant_0fchvsp" isHorizontal="true">
+        <dc:Bounds x="350" y="-180" width="300" height="60" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Participant_156f04z_di" bpmnElement="Participant_1g3d4yu" isHorizontal="true">
+        <dc:Bounds x="220" y="-290" width="1260" height="60" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_195lpbk_di" bpmnElement="Flow_195lpbk">
+        <di:waypoint x="490" y="165" />
+        <di:waypoint x="490" y="-120" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0zy1csl_di" bpmnElement="Flow_0zy1csl">
+        <di:waypoint x="790" y="165" />
+        <di:waypoint x="790" y="-230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1q49plq_di" bpmnElement="Flow_1q49plq">
+        <di:waypoint x="830" y="-230" />
+        <di:waypoint x="830" y="165" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0om7r6z_di" bpmnElement="Flow_0om7r6z">
+        <di:waypoint x="300" y="160" />
+        <di:waypoint x="300" y="-230" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0jrjuh3_di" bpmnElement="Flow_0jrjuh3">
+        <di:waypoint x="330" y="-230" />
+        <di:waypoint x="330" y="165" />
+      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="Group_1fg8oba_di" bpmnElement="Group_1fg8oba">
-        <dc:Bounds x="420" y="80" width="320" height="440" />
+        <dc:Bounds x="420" y="80" width="320" height="350" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="546" y="87" width="69" height="40" />
         </bpmndi:BPMNLabel>
