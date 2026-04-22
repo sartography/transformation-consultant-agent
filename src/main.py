@@ -31,6 +31,7 @@ def setup_logging(level: str = "INFO"):
 logger = logging.getLogger(__name__)
 from .components.input.transcript_processor import TranscriptProcessor
 from .components.generation.bpmn_generator import BPMNGenerator
+from .components.generation.spiff_converter import SpiffConverter
 from .components.optimization.recommendation_engine import RecommendationEngine
 
 # Load environment variables
@@ -140,6 +141,32 @@ def create_bpmn_pipeline(api_key: Optional[str] = None,
     pipeline.add_component(
         BPMNGenerator(api_key=api_key, model=model),
         config={"include_apqc": True}
+    )
+
+    return pipeline
+
+
+def create_spiff_pipeline(api_key: Optional[str] = None,
+                         model: str = "claude-sonnet-4-5-20250929") -> Pipeline:
+    """
+    Create a SpiffWorkflow conversion pipeline.
+
+    Pipeline flow: BPMN XML → SpiffWorkflow-executable BPMN + JSON schemas
+
+    Args:
+        api_key: Anthropic API key (defaults to env var)
+        model: Claude model to use
+
+    Returns:
+        Configured pipeline ready for execution
+    """
+    if api_key is None:
+        api_key = get_api_key()
+
+    pipeline = Pipeline(name="SpiffWorkflow BPMN Conversion Pipeline")
+    pipeline.add_component(
+        SpiffConverter(api_key=api_key, model=model),
+        config={}
     )
 
     return pipeline

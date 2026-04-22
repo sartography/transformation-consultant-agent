@@ -1,0 +1,15 @@
+{
+  "ui:order": [
+    "vendor_id", "vendor_email",
+    "gl_account_code", "cost_center",
+    "payment_terms", "invoice_due_date",
+    "vendor_payment_method",
+    "po_amount", "line_item_description"
+  ],
+  "vendor_email": {
+    "ui:widget": "email"
+  },
+  "line_item_description": {
+    "ui:widget": "textarea"
+  }
+}

@@ -11,8 +11,8 @@ notebook>=7.0.0                # Jupyter notebook interface
 # Voice Integration (Phase 3)
 elevenlabs>=1.0.0              # ElevenLabs text-to-speech API
 
-# BPMN and Process Modeling (future)
-# bpmn-python>=0.0.20          # BPMN diagram generation (uncomment when needed)
+# BPMN and Process Modeling
+SpiffWorkflow>=3.0.0           # BPMN execution engine — used for BPMN validation
 
 # Utilities
 requests>=2.31.0               # HTTP requests

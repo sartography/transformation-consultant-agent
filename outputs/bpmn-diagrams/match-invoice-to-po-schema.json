@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Match Invoice to Purchase Order",
+  "description": "Search Oracle for the PO matching this invoice and record the result",
+  "type": "object",
+  "required": ["po_found"],
+  "properties": {
+    "po_number": {
+      "type": "string",
+      "title": "PO Number",
+      "description": "Enter the PO number found in Oracle (leave blank if not found)"
+    },
+    "po_found": {
+      "type": "boolean",
+      "title": "PO Found in Oracle?",
+      "description": "Check if a matching Purchase Order was located"
+    },
+    "po_match_notes": {
+      "type": "string",
+      "title": "Notes",
+      "description": "Any observations about the PO match (e.g., description discrepancies)"
+    }
+  }
+}

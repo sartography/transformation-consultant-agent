@@ -48,7 +48,20 @@ class PipelineResult:
             if output_data is None:
                 continue
 
-            # Determine file extension
+            # SpiffConverter returns a dict with bpmn_xml and schema_files
+            if isinstance(output_data, dict) and "bpmn_xml" in output_data:
+                base = component_name.lower().replace(' ', '-')
+                bpmn_path = output_dir / f"{base}.bpmn"
+                bpmn_path.write_text(output_data["bpmn_xml"], encoding='utf-8')
+                for schema_filename, schema_content in output_data.get("schema_files", {}).items():
+                    schema_path = output_dir / schema_filename
+                    schema_path.write_text(
+                        json.dumps(schema_content, indent=2),
+                        encoding='utf-8'
+                    )
+                continue
+
+            # Determine file extension for string outputs
             if "BPMN" in component_name:
                 ext = ".bpmn"
             elif "Analysis" in component_name:

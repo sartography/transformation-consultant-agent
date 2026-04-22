@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Resolve Failed Payment",
+  "description": "Investigate the payment failure, resolve the issue, and confirm readiness to retry",
+  "type": "object",
+  "required": ["failure_reason", "resolution_action", "resolution_notes"],
+  "properties": {
+    "failure_reason": {
+      "type": "string",
+      "title": "Reason for Payment Failure",
+      "enum": ["invalid_bank_account", "insufficient_funds_hold", "vendor_bank_rejected", "oracle_system_error", "blocked_vendor", "other"],
+      "enumNames": [
+        "Invalid Bank Account — ACH routing/account number incorrect",
+        "Invoice on Hold — finance placed a hold on this payment",
+        "Vendor Bank Rejected — receiving bank declined the transfer",
+        "Oracle System Error — technical error in payment processing",
+        "Blocked Vendor — vendor flagged in Oracle",
+        "Other"
+      ]
+    },
+    "resolution_action": {
+      "type": "string",
+      "title": "Resolution Action Taken",
+      "enum": ["updated_bank_details", "released_hold", "switched_to_check", "corrected_vendor_record", "retried_batch", "other"],
+      "enumNames": [
+        "Updated Bank Details — corrected ACH routing/account",
+        "Released Hold — hold removed, cleared to pay",
+        "Switched to Check — changing payment method to paper check",
+        "Corrected Vendor Record — fixed vendor master data in Oracle",
+        "Retried Batch — resubmitted payment batch",
+        "Other"
+      ]
+    },
+    "resolution_notes": {
+      "type": "string",
+      "title": "Resolution Notes",
+      "description": "Describe what was done and who was contacted"
+    }
+  }
+}

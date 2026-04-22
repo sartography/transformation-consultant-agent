@@ -1,0 +1,7 @@
+{
+  "vendor_name": "Acme Office Supplies",
+  "invoice_number": "INV-2026-00412",
+  "invoice_date": "2026-04-15",
+  "invoice_amount": 2450.00,
+  "invoice_channel": "email"
+}

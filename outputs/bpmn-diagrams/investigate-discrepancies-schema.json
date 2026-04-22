@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Investigate Three-Way Match Discrepancy",
+  "description": "Document the discrepancy investigation and resolution; adjust invoice amount if applicable",
+  "type": "object",
+  "required": ["discrepancy_type", "discrepancy_description", "resolution_action"],
+  "properties": {
+    "discrepancy_type": {
+      "type": "string",
+      "title": "Type of Discrepancy",
+      "enum": ["price_difference", "quantity_mismatch", "description_mismatch", "missing_line_item", "tax_shipping_included", "other"],
+      "enumNames": [
+        "Price Difference — invoice price differs from PO",
+        "Quantity Mismatch — invoiced qty differs from received qty",
+        "Description Mismatch — item descriptions don't match",
+        "Missing Line Item — item on invoice not on PO",
+        "Tax / Shipping Included — PO excluded tax or shipping",
+        "Other"
+      ]
+    },
+    "discrepancy_description": {
+      "type": "string",
+      "title": "Describe the Discrepancy",
+      "description": "Detail what doesn't match and why"
+    },
+    "resolution_action": {
+      "type": "string",
+      "title": "Resolution Action Taken",
+      "enum": ["vendor_credited", "invoice_adjusted", "po_amended", "short_paid", "accepted_as_is", "escalated_to_buyer"],
+      "enumNames": [
+        "Vendor Credited — vendor issued credit note",
+        "Invoice Adjusted — invoice amount corrected",
+        "PO Amended — PO updated to match invoice",
+        "Short-Paid — paying only the PO amount",
+        "Accepted As-Is — variance within tolerance, approved",
+        "Escalated to Buyer — sent to buyer for resolution"
+      ]
+    },
+    "adjusted_invoice_amount": {
+      "type": "number",
+      "minimum": 0,
+      "title": "Adjusted Invoice Amount ($)",
+      "description": "Enter the corrected amount if the invoice was adjusted (leave blank to keep original)"
+    },
+    "resolution_notes": {
+      "type": "string",
+      "title": "Resolution Notes",
+      "description": "Additional details, emails received, or contacts made"
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Receive Vendor Invoice",
+  "description": "Log an incoming vendor invoice into the AP processing queue",
+  "type": "object",
+  "required": ["vendor_name", "invoice_number", "invoice_date", "invoice_amount", "invoice_channel"],
+  "properties": {
+    "vendor_name": {
+      "type": "string",
+      "title": "Vendor Name"
+    },
+    "invoice_number": {
+      "type": "string",
+      "title": "Invoice Number"
+    },
+    "invoice_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Invoice Date"
+    },
+    "invoice_amount": {
+      "type": "number",
+      "minimum": 0,
+      "title": "Invoice Amount ($)"
+    },
+    "invoice_channel": {
+      "type": "string",
+      "title": "How was this invoice received?",
+      "enum": ["email", "mail", "portal", "other"],
+      "enumNames": ["Email (AP Mailbox)", "Physical Mail", "Vendor Portal", "Other"]
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "failure_reason": "invalid_bank_account",
+  "resolution_action": "updated_bank_details",
+  "resolution_notes": "Called Acme AP contact (Maria Torres, 555-0192). Correct routing number is 021000021. Updated vendor master record in Oracle. Ready to retry ACH."
+}

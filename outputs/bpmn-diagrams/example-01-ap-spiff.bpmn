@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Transformation Consultant Agent - BPMN Generation Skill" exporterVersion="1.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:spiffworkflow="http://spiffworkflow.org/bpmn/schema/1.0/core"
+                  id="Definitions_1"
+                  targetNamespace="http://bpmn.io/schema/bpmn"
+                  exporter="Transformation Consultant Agent - SpiffWorkflow Conversion Skill"
+                  exporterVersion="1.0">
+
   <bpmn:collaboration id="Collaboration_1j5lvky">
     <bpmn:participant id="Participant_0c8m9en" processRef="Process_APInvoiceProcessing" />
   </bpmn:collaboration>
-  <bpmn:process id="Process_APInvoiceProcessing" name="Accounts Payable Invoice Processing" isExecutable="false">
+
+  <bpmn:process id="Process_APInvoiceProcessing" name="Accounts Payable Invoice Processing" isExecutable="true">
+
     <bpmn:laneSet id="LaneSet_1">
       <bpmn:lane id="Lane_APClerk" name="AP Clerk">
         <bpmn:flowNodeRef>Activity_1_ReceiveInvoice</bpmn:flowNodeRef>
@@ -33,158 +45,420 @@
         <bpmn:flowNodeRef>Gateway_6_PaymentValidation</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
-    <bpmn:task id="Activity_1_ReceiveInvoice" name="3.2.1 Receive Vendor Invoice">
+
+    <bpmn:startEvent id="Event_0qfqh69" name="Invoice Received">
+      <bpmn:outgoing>Flow_021z45x</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <!-- ============================================================
+         AP CLERK LANE
+         ============================================================ -->
+
+    <bpmn:userTask id="Activity_1_ReceiveInvoice" name="3.2.1 Receive Vendor Invoice">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="receive-vendor-invoice-schema.json" />
+          <spiffworkflow:property name="formUiSchemaFilename" value="receive-vendor-invoice-uischema.json" />
+        </spiffworkflow:properties>
+        <spiffworkflow:instructionsForEndUser>
+## Receive Vendor Invoice
+
+Log a new vendor invoice into the AP processing queue.
+
+Review your AP inbox and vendor portal for new invoices, then complete the form below.
+        </spiffworkflow:instructionsForEndUser>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_021z45x</bpmn:incoming>
       <bpmn:outgoing>Flow_2</bpmn:outgoing>
-    </bpmn:task>
+    </bpmn:userTask>
+
     <bpmn:exclusiveGateway id="Gateway_1_InvoiceChannel" name="Invoice Channel?">
       <bpmn:incoming>Flow_2</bpmn:incoming>
-      <bpmn:outgoing>Flow_3_Other</bpmn:outgoing>
-      <bpmn:outgoing>Flow_3_Portal</bpmn:outgoing>
-      <bpmn:outgoing>Flow_3_Mail</bpmn:outgoing>
       <bpmn:outgoing>Flow_3_Email</bpmn:outgoing>
+      <bpmn:outgoing>Flow_3_Mail</bpmn:outgoing>
+      <bpmn:outgoing>Flow_3_Portal</bpmn:outgoing>
+      <bpmn:outgoing>Flow_3_Other</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_2_CaptureInvoiceData" name="3.2.2 Capture Invoice Data">
+
+    <bpmn:userTask id="Activity_2_CaptureInvoiceData" name="3.2.2 Capture Invoice Data">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="capture-invoice-data-schema.json" />
+          <spiffworkflow:property name="formUiSchemaFilename" value="capture-invoice-data-uischema.json" />
+        </spiffworkflow:properties>
+        <spiffworkflow:instructionsForEndUser>
+## Capture Invoice Data
+
+Enter the complete details for invoice **{{invoice_number}}** from **{{vendor_name}}** (${{invoice_amount}}).
+
+Look up the vendor in Oracle and enter GL coding and payment details below.
+        </spiffworkflow:instructionsForEndUser>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_15_Rejected</bpmn:incoming>
-      <bpmn:incoming>Flow_3_Other</bpmn:incoming>
-      <bpmn:incoming>Flow_3_Portal</bpmn:incoming>
-      <bpmn:incoming>Flow_3_Mail</bpmn:incoming>
       <bpmn:incoming>Flow_3_Email</bpmn:incoming>
+      <bpmn:incoming>Flow_3_Mail</bpmn:incoming>
+      <bpmn:incoming>Flow_3_Portal</bpmn:incoming>
+      <bpmn:incoming>Flow_3_Other</bpmn:incoming>
       <bpmn:outgoing>Flow_4</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Activity_3_MatchInvoiceToPO" name="3.2.3 Match Invoice to Purchase Order">
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Activity_3_MatchInvoiceToPO" name="3.2.3 Match Invoice to Purchase Order">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="match-invoice-to-po-schema.json" />
+        </spiffworkflow:properties>
+        <spiffworkflow:instructionsForEndUser>
+## Match Invoice to Purchase Order
+
+Search Oracle for the PO number referenced on this invoice.
+
+**Invoice**: {{invoice_number}}
+**Vendor**: {{vendor_name}}
+**Amount**: ${{invoice_amount}}
+
+Enter the PO number below. If no matching PO exists, select **PO Not Found**.
+        </spiffworkflow:instructionsForEndUser>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_6_Resolved</bpmn:incoming>
       <bpmn:incoming>Flow_4</bpmn:incoming>
       <bpmn:outgoing>Flow_5</bpmn:outgoing>
-    </bpmn:task>
+    </bpmn:userTask>
+
     <bpmn:exclusiveGateway id="Gateway_2_POFound" name="PO Found?">
       <bpmn:incoming>Flow_5</bpmn:incoming>
       <bpmn:outgoing>Flow_7_Found</bpmn:outgoing>
       <bpmn:outgoing>Flow_6_NotFound</bpmn:outgoing>
     </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_4_ResolveMissingPO" name="3.2.7 Handle Exceptions (Missing PO)">
+
+    <bpmn:userTask id="Activity_4_ResolveMissingPO" name="3.2.7 Handle Exceptions (Missing PO)">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="resolve-missing-po-schema.json" />
+        </spiffworkflow:properties>
+        <spiffworkflow:instructionsForEndUser>
+## Handle Missing PO Exception
+
+No Purchase Order was found for this invoice.
+
+**Invoice**: {{invoice_number}}
+**Vendor**: {{vendor_name}}
+**Amount**: ${{invoice_amount}}
+
+Select the appropriate resolution action below. If a PO was created, enter the new PO number.
+        </spiffworkflow:instructionsForEndUser>
+        <spiffworkflow:postScript>
+# Mark PO as resolved so the match step can proceed
+po_found = True
+        </spiffworkflow:postScript>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_6_NotFound</bpmn:incoming>
       <bpmn:outgoing>Flow_6_Resolved</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Activity_5_ThreeWayMatch" name="3.2.4 Verify Invoice Accuracy (Three-Way Match)">
-      <bpmn:incoming>Flow_9_Resolved</bpmn:incoming>
-      <bpmn:incoming>Flow_7_Found</bpmn:incoming>
-      <bpmn:outgoing>Flow_8</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_3_MatchResult" name="Match Successful?">
-      <bpmn:incoming>Flow_8</bpmn:incoming>
-      <bpmn:outgoing>Flow_10_Success</bpmn:outgoing>
-      <bpmn:outgoing>Flow_9_Failed</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_6_InvestigateDiscrepancies" name="3.2.7 Handle Exceptions (Discrepancies)">
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Activity_6_InvestigateDiscrepancies" name="3.2.7 Handle Exceptions (Discrepancies)">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="investigate-discrepancies-schema.json" />
+          <spiffworkflow:property name="formUiSchemaFilename" value="investigate-discrepancies-uischema.json" />
+        </spiffworkflow:properties>
+        <spiffworkflow:instructionsForEndUser>
+## Investigate Three-Way Match Discrepancy
+
+The three-way match has failed and requires investigation.
+
+| Field | Value |
+|-------|-------|
+| **Invoice** | {{invoice_number}} |
+| **Vendor** | {{vendor_name}} |
+| **Invoice Amount** | ${{invoice_amount}} |
+| **PO Amount** | ${{po_amount}} |
+| **Match Result** | {{match_notes}} |
+
+Investigate the discrepancy with the vendor and/or buyer. If the invoice amount should be adjusted, enter the corrected amount below.
+        </spiffworkflow:instructionsForEndUser>
+        <spiffworkflow:postScript><![CDATA[
+# Apply invoice amount correction if clerk entered an adjustment
+if adjusted_invoice_amount and adjusted_invoice_amount > 0:
+    invoice_amount = adjusted_invoice_amount
+]]></spiffworkflow:postScript>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_9_Failed</bpmn:incoming>
       <bpmn:outgoing>Flow_9_Resolved</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_4_ApprovalThreshold" name="Approval Required?">
-      <bpmn:incoming>Flow_10_Success</bpmn:incoming>
-      <bpmn:outgoing>Flow_12_RequiresApproval</bpmn:outgoing>
-      <bpmn:outgoing>Flow_11_AutoApprove</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_7_RouteForApproval" name="3.2.5 Route Invoice for Approval">
-      <bpmn:incoming>Flow_12_RequiresApproval</bpmn:incoming>
-      <bpmn:outgoing>Flow_13</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_5_ManagerDecision" name="Approved?">
-      <bpmn:incoming>Flow_13</bpmn:incoming>
-      <bpmn:outgoing>Flow_14_Approved</bpmn:outgoing>
-      <bpmn:outgoing>Flow_15_Rejected</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_8_ProcessPayment" name="3.2.6 Process Payment">
-      <bpmn:incoming>Flow_17_Resolved</bpmn:incoming>
-      <bpmn:incoming>Flow_14_Approved</bpmn:incoming>
-      <bpmn:incoming>Flow_11_AutoApprove</bpmn:incoming>
-      <bpmn:outgoing>Flow_16</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:exclusiveGateway id="Gateway_6_PaymentValidation" name="Payment Valid?">
-      <bpmn:incoming>Flow_16</bpmn:incoming>
-      <bpmn:outgoing>Flow_18_Success</bpmn:outgoing>
-      <bpmn:outgoing>Flow_17_Failed</bpmn:outgoing>
-    </bpmn:exclusiveGateway>
-    <bpmn:task id="Activity_9_ResolveFailedPayment" name="3.2.7 Handle Exceptions (Failed Payment)">
+    </bpmn:userTask>
+
+    <bpmn:userTask id="Activity_9_ResolveFailedPayment" name="3.2.7 Handle Exceptions (Failed Payment)">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="resolve-failed-payment-schema.json" />
+        </spiffworkflow:properties>
+        <spiffworkflow:instructionsForEndUser>
+## Resolve Failed Payment
+
+The payment for invoice **{{invoice_number}}** could not be processed.
+
+**Vendor**: {{vendor_name}}
+**Amount**: ${{invoice_amount}}
+**Payment Method**: {{vendor_payment_method}}
+
+Investigate the payment failure, resolve the underlying issue, and confirm readiness to retry.
+        </spiffworkflow:instructionsForEndUser>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_17_Failed</bpmn:incoming>
       <bpmn:outgoing>Flow_17_Resolved</bpmn:outgoing>
-    </bpmn:task>
-    <bpmn:task id="Activity_10_VendorNotification" name="3.2.8 Vendor Notification">
+    </bpmn:userTask>
+
+    <!-- Vendor Notification: serviceTask calls remittance HTTP endpoint -->
+    <bpmn:serviceTask id="Activity_10_VendorNotification" name="3.2.8 Vendor Notification">
+      <bpmn:extensionElements>
+        <spiffworkflow:serviceTaskOperator id="http/PostRequest">
+          <spiffworkflow:parameters>
+            <spiffworkflow:parameter id="url" type="str" value="'https://api.internal/notifications/remittance'" />
+            <spiffworkflow:parameter id="headers" type="any" value="{'Content-Type': 'application/json', 'Accept': 'application/json'}" />
+            <spiffworkflow:parameter id="params" type="any" value="{'vendor_email': vendor_email, 'vendor_name': vendor_name, 'invoice_number': invoice_number, 'payment_amount': invoice_amount, 'payment_reference': payment_reference, 'payment_date': payment_processed_date}" />
+            <spiffworkflow:parameter id="basic_auth_username" type="str" value="''" />
+            <spiffworkflow:parameter id="basic_auth_password" type="str" value="''" />
+          </spiffworkflow:parameters>
+        </spiffworkflow:serviceTaskOperator>
+        <spiffworkflow:postScript>
+notification_sent = True
+notification_timestamp = str(datetime.now())
+        </spiffworkflow:postScript>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_21_Failed</bpmn:incoming>
       <bpmn:incoming>Flow_18_Success</bpmn:incoming>
       <bpmn:outgoing>Flow_19</bpmn:outgoing>
-    </bpmn:task>
+    </bpmn:serviceTask>
+
     <bpmn:exclusiveGateway id="Gateway_7_NotificationSuccess" name="Notification Received?">
       <bpmn:incoming>Flow_19</bpmn:incoming>
       <bpmn:outgoing>Flow_20_Success</bpmn:outgoing>
       <bpmn:outgoing>Flow_21_Failed</bpmn:outgoing>
     </bpmn:exclusiveGateway>
+
     <bpmn:endEvent id="EndEvent_1" name="Invoice Processing Complete">
       <bpmn:incoming>Flow_20_Success</bpmn:incoming>
     </bpmn:endEvent>
-    <bpmn:startEvent id="Event_0qfqh69">
-      <bpmn:outgoing>Flow_021z45x</bpmn:outgoing>
-    </bpmn:startEvent>
+
+    <!-- ============================================================
+         SAP SYSTEM LANE
+         ============================================================ -->
+
+    <!-- Three-Way Match: automated script compares invoice vs PO amounts -->
+    <bpmn:scriptTask id="Activity_5_ThreeWayMatch" name="3.2.4 Verify Invoice Accuracy (Three-Way Match)" scriptFormat="python">
+      <bpmn:extensionElements>
+        <spiffworkflow:unitTests>
+          <spiffworkflow:unitTest id="test_match_passes_within_threshold">
+            <spiffworkflow:inputJson>{"invoice_amount": 1000.0, "po_amount": 980.0}</spiffworkflow:inputJson>
+            <spiffworkflow:expectedOutputJson>{"invoice_amount": 1000.0, "po_amount": 980.0, "match_successful": true, "match_notes": "Three-way match passed. Amount variance: 2.0%"}</spiffworkflow:expectedOutputJson>
+          </spiffworkflow:unitTest>
+          <spiffworkflow:unitTest id="test_match_fails_large_variance">
+            <spiffworkflow:inputJson>{"invoice_amount": 1000.0, "po_amount": 800.0}</spiffworkflow:inputJson>
+            <spiffworkflow:expectedOutputJson>{"invoice_amount": 1000.0, "po_amount": 800.0, "match_successful": false, "match_notes": "Three-way match failed. Amount variance 25.0% exceeds 5% threshold. Invoice: $1000.00, PO: $800.00"}</spiffworkflow:expectedOutputJson>
+          </spiffworkflow:unitTest>
+          <spiffworkflow:unitTest id="test_exact_match">
+            <spiffworkflow:inputJson>{"invoice_amount": 500.0, "po_amount": 500.0}</spiffworkflow:inputJson>
+            <spiffworkflow:expectedOutputJson>{"invoice_amount": 500.0, "po_amount": 500.0, "match_successful": true, "match_notes": "Three-way match passed. Amount variance: 0.0%"}</spiffworkflow:expectedOutputJson>
+          </spiffworkflow:unitTest>
+        </spiffworkflow:unitTests>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_9_Resolved</bpmn:incoming>
+      <bpmn:incoming>Flow_7_Found</bpmn:incoming>
+      <bpmn:outgoing>Flow_8</bpmn:outgoing>
+      <bpmn:script><![CDATA[
+# Three-way match: compare invoice amount against PO amount
+amount_variance = abs(invoice_amount - po_amount)
+amount_variance_pct = amount_variance / po_amount if po_amount > 0 else 0
+
+if amount_variance_pct <= 0.05:
+    match_successful = True
+    match_notes = "Three-way match passed. Amount variance: {:.1%}".format(amount_variance_pct)
+else:
+    match_successful = False
+    match_notes = "Three-way match failed. Amount variance {:.1%} exceeds 5% threshold. Invoice: ${:.2f}, PO: ${:.2f}".format(amount_variance_pct, invoice_amount, po_amount)
+]]></bpmn:script>
+    </bpmn:scriptTask>
+
+    <bpmn:exclusiveGateway id="Gateway_3_MatchResult" name="Match Successful?">
+      <bpmn:incoming>Flow_8</bpmn:incoming>
+      <bpmn:outgoing>Flow_10_Success</bpmn:outgoing>
+      <bpmn:outgoing>Flow_9_Failed</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:exclusiveGateway id="Gateway_4_ApprovalThreshold" name="Approval Required?">
+      <bpmn:incoming>Flow_10_Success</bpmn:incoming>
+      <bpmn:outgoing>Flow_12_RequiresApproval</bpmn:outgoing>
+      <bpmn:outgoing>Flow_11_AutoApprove</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- ============================================================
+         AP MANAGER LANE
+         ============================================================ -->
+
+    <bpmn:userTask id="Activity_7_RouteForApproval" name="3.2.5 Route Invoice for Approval">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="route-for-approval-schema.json" />
+          <spiffworkflow:property name="formUiSchemaFilename" value="route-for-approval-uischema.json" />
+        </spiffworkflow:properties>
+        <spiffworkflow:instructionsForEndUser>
+## Invoice Approval Required
+
+Please review the invoice details and approve or reject payment.
+
+| Field | Value |
+|-------|-------|
+| **Vendor** | {{vendor_name}} |
+| **Invoice Number** | {{invoice_number}} |
+| **Invoice Date** | {{invoice_date}} |
+| **Amount** | ${{invoice_amount}} |
+| **GL Account** | {{gl_account_code}} |
+| **Cost Center** | {{cost_center}} |
+| **Payment Terms** | {{payment_terms}} |
+| **Due Date** | {{invoice_due_date}} |
+| **PO Number** | {{po_number}} |
+| **Match Notes** | {{match_notes}} |
+        </spiffworkflow:instructionsForEndUser>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_12_RequiresApproval</bpmn:incoming>
+      <bpmn:outgoing>Flow_13</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_5_ManagerDecision" name="Approved?">
+      <bpmn:incoming>Flow_13</bpmn:incoming>
+      <bpmn:outgoing>Flow_14_Approved</bpmn:outgoing>
+      <bpmn:outgoing>Flow_15_Rejected</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- ============================================================
+         AP SPECIALIST LANE
+         ============================================================ -->
+
+    <bpmn:userTask id="Activity_8_ProcessPayment" name="3.2.6 Process Payment">
+      <bpmn:extensionElements>
+        <spiffworkflow:properties>
+          <spiffworkflow:property name="formJsonSchemaFilename" value="process-payment-schema.json" />
+        </spiffworkflow:properties>
+        <spiffworkflow:instructionsForEndUser>
+## Process Payment
+
+Enter the payment for this invoice in Oracle and record the payment details below.
+
+| Field | Value |
+|-------|-------|
+| **Vendor** | {{vendor_name}} |
+| **Invoice** | {{invoice_number}} |
+| **Amount** | ${{invoice_amount}} |
+| **Payment Terms** | {{payment_terms}} |
+| **Due Date** | {{invoice_due_date}} |
+| **Preferred Method** | {{vendor_payment_method}} |
+
+After submitting the payment in Oracle, enter the payment reference number below.
+        </spiffworkflow:instructionsForEndUser>
+        <spiffworkflow:postScript>
+# Record the payment processing date
+payment_processed_date = str(datetime.now().date())
+        </spiffworkflow:postScript>
+      </bpmn:extensionElements>
+      <bpmn:incoming>Flow_17_Resolved</bpmn:incoming>
+      <bpmn:incoming>Flow_14_Approved</bpmn:incoming>
+      <bpmn:incoming>Flow_11_AutoApprove</bpmn:incoming>
+      <bpmn:outgoing>Flow_16</bpmn:outgoing>
+    </bpmn:userTask>
+
+    <bpmn:exclusiveGateway id="Gateway_6_PaymentValidation" name="Payment Valid?">
+      <bpmn:incoming>Flow_16</bpmn:incoming>
+      <bpmn:outgoing>Flow_18_Success</bpmn:outgoing>
+      <bpmn:outgoing>Flow_17_Failed</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <!-- ============================================================
+         SEQUENCE FLOWS — all gateway conditions are Python expressions
+         ============================================================ -->
+
     <bpmn:sequenceFlow id="Flow_021z45x" sourceRef="Event_0qfqh69" targetRef="Activity_1_ReceiveInvoice" />
     <bpmn:sequenceFlow id="Flow_2" sourceRef="Activity_1_ReceiveInvoice" targetRef="Gateway_1_InvoiceChannel" />
-    <bpmn:sequenceFlow id="Flow_3_Other" name="Other" sourceRef="Gateway_1_InvoiceChannel" targetRef="Activity_2_CaptureInvoiceData">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Other</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_3_Portal" name="Portal (10-15%)" sourceRef="Gateway_1_InvoiceChannel" targetRef="Activity_2_CaptureInvoiceData">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Vendor Portal</bpmn:conditionExpression>
+
+    <!-- Gateway 1: Invoice Channel -->
+    <bpmn:sequenceFlow id="Flow_3_Email" name="Email (60%)" sourceRef="Gateway_1_InvoiceChannel" targetRef="Activity_2_CaptureInvoiceData">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">invoice_channel == "email"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_3_Mail" name="Mail (25%)" sourceRef="Gateway_1_InvoiceChannel" targetRef="Activity_2_CaptureInvoiceData">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Mail</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">invoice_channel == "mail"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_3_Email" name="Email (60%)" sourceRef="Gateway_1_InvoiceChannel" targetRef="Activity_2_CaptureInvoiceData">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Email</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_3_Portal" name="Portal (10-15%)" sourceRef="Gateway_1_InvoiceChannel" targetRef="Activity_2_CaptureInvoiceData">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">invoice_channel == "portal"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_15_Rejected" name="Rejected" sourceRef="Gateway_5_ManagerDecision" targetRef="Activity_2_CaptureInvoiceData">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Rejected</bpmn:conditionExpression>
+    <bpmn:sequenceFlow id="Flow_3_Other" name="Other" sourceRef="Gateway_1_InvoiceChannel" targetRef="Activity_2_CaptureInvoiceData">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">invoice_channel == "other"</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+
     <bpmn:sequenceFlow id="Flow_4" sourceRef="Activity_2_CaptureInvoiceData" targetRef="Activity_3_MatchInvoiceToPO" />
     <bpmn:sequenceFlow id="Flow_6_Resolved" sourceRef="Activity_4_ResolveMissingPO" targetRef="Activity_3_MatchInvoiceToPO" />
     <bpmn:sequenceFlow id="Flow_5" sourceRef="Activity_3_MatchInvoiceToPO" targetRef="Gateway_2_POFound" />
+
+    <!-- Gateway 2: PO Found -->
     <bpmn:sequenceFlow id="Flow_7_Found" name="Found (80%)" sourceRef="Gateway_2_POFound" targetRef="Activity_5_ThreeWayMatch">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">PO Found</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">po_found == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_6_NotFound" name="Not Found (10-15%)" sourceRef="Gateway_2_POFound" targetRef="Activity_4_ResolveMissingPO">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">PO Not Found</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">po_found == False</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+
     <bpmn:sequenceFlow id="Flow_9_Resolved" sourceRef="Activity_6_InvestigateDiscrepancies" targetRef="Activity_5_ThreeWayMatch" />
     <bpmn:sequenceFlow id="Flow_8" sourceRef="Activity_5_ThreeWayMatch" targetRef="Gateway_3_MatchResult" />
+
+    <!-- Gateway 3: Match Result -->
     <bpmn:sequenceFlow id="Flow_10_Success" name="Success" sourceRef="Gateway_3_MatchResult" targetRef="Gateway_4_ApprovalThreshold">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Match Success</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">match_successful == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_9_Failed" name="Failed" sourceRef="Gateway_3_MatchResult" targetRef="Activity_6_InvestigateDiscrepancies">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Match Failed</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">match_successful == False</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+
+    <!-- Gateway 4: Approval Threshold — ≥$5k OR no PO requires manager approval -->
     <bpmn:sequenceFlow id="Flow_12_RequiresApproval" name="≥$5k or No PO" sourceRef="Gateway_4_ApprovalThreshold" targetRef="Activity_7_RouteForApproval">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Requires Approval</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">invoice_amount >= 5000 or po_found == False</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_11_AutoApprove" name="Under $5k with PO" sourceRef="Gateway_4_ApprovalThreshold" targetRef="Activity_8_ProcessPayment">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Under $5000 with PO</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">invoice_amount &lt; 5000 and po_found == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+
     <bpmn:sequenceFlow id="Flow_13" sourceRef="Activity_7_RouteForApproval" targetRef="Gateway_5_ManagerDecision" />
+
+    <!-- Gateway 5: Manager Decision -->
     <bpmn:sequenceFlow id="Flow_14_Approved" name="Approved" sourceRef="Gateway_5_ManagerDecision" targetRef="Activity_8_ProcessPayment">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Approved</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">manager_approved == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
+    <bpmn:sequenceFlow id="Flow_15_Rejected" name="Rejected" sourceRef="Gateway_5_ManagerDecision" targetRef="Activity_2_CaptureInvoiceData">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">manager_approved == False</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
     <bpmn:sequenceFlow id="Flow_17_Resolved" sourceRef="Activity_9_ResolveFailedPayment" targetRef="Activity_8_ProcessPayment" />
     <bpmn:sequenceFlow id="Flow_16" sourceRef="Activity_8_ProcessPayment" targetRef="Gateway_6_PaymentValidation" />
+
+    <!-- Gateway 6: Payment Validation -->
     <bpmn:sequenceFlow id="Flow_18_Success" name="Success" sourceRef="Gateway_6_PaymentValidation" targetRef="Activity_10_VendorNotification">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Payment Success</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">payment_successful == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_17_Failed" name="Failed" sourceRef="Gateway_6_PaymentValidation" targetRef="Activity_9_ResolveFailedPayment">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Payment Failed</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">payment_successful == False</bpmn:conditionExpression>
+    </bpmn:sequenceFlow>
+
+    <bpmn:sequenceFlow id="Flow_19" sourceRef="Activity_10_VendorNotification" targetRef="Gateway_7_NotificationSuccess" />
+
+    <!-- Gateway 7: Notification Success -->
+    <bpmn:sequenceFlow id="Flow_20_Success" name="Success (50%)" sourceRef="Gateway_7_NotificationSuccess" targetRef="EndEvent_1">
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">notification_sent == True</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
     <bpmn:sequenceFlow id="Flow_21_Failed" name="Failed (50%)" sourceRef="Gateway_7_NotificationSuccess" targetRef="Activity_10_VendorNotification">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Notification Failed</bpmn:conditionExpression>
+      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">notification_sent == False</bpmn:conditionExpression>
     </bpmn:sequenceFlow>
-    <bpmn:sequenceFlow id="Flow_19" sourceRef="Activity_10_VendorNotification" targetRef="Gateway_7_NotificationSuccess" />
-    <bpmn:sequenceFlow id="Flow_20_Success" name="Success (50%)" sourceRef="Gateway_7_NotificationSuccess" targetRef="EndEvent_1">
-      <bpmn:conditionExpression xsi:type="bpmn:tFormalExpression">Notification Success</bpmn:conditionExpression>
-    </bpmn:sequenceFlow>
+
   </bpmn:process>
+
+  <!-- ============================================================
+       DIAGRAM — preserved unchanged from original
+       ============================================================ -->
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1j5lvky">
       <bpmndi:BPMNShape id="Participant_0c8m9en_di" bpmnElement="Participant_0c8m9en" isHorizontal="true">
@@ -455,4 +729,5 @@
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
+
 </bpmn:definitions>
