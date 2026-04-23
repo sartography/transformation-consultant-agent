@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Invoice Approval",
+  "description": "AP Manager reviews invoice details and approves or rejects payment",
+  "type": "object",
+  "required": ["manager_approved"],
+  "properties": {
+    "manager_approved": {
+      "type": "boolean",
+      "title": "Approve Invoice for Payment?",
+      "description": "Select Yes to approve payment or No to reject and return for revision"
+    },
+    "approval_notes": {
+      "type": "string",
+      "title": "Approval Notes",
+      "description": "Optional notes about the approval decision"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "title": "Rejection Reason",
+      "description": "If rejecting, explain why so the AP Clerk can correct and resubmit",
+      "enum": ["", "incorrect_gl_coding", "po_mismatch", "duplicate_suspected", "unauthorized_vendor", "budget_exceeded", "missing_documentation", "other"],
+      "enumNames": [
+        "(Not applicable — approved)",
+        "Incorrect GL Coding",
+        "PO Mismatch",
+        "Suspected Duplicate",
+        "Unauthorized Vendor",
+        "Budget Exceeded",
+        "Missing Documentation",
+        "Other"
+      ]
+    }
+  }
+}

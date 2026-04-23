@@ -1,0 +1,6 @@
+{
+  "payment_reference": "PAY-BATCH-20260422-0047",
+  "payment_method_used": "ach",
+  "payment_successful": true,
+  "payment_failure_reason": ""
+}

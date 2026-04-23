@@ -1,0 +1,7 @@
+{
+  "discrepancy_type": "price_difference",
+  "discrepancy_description": "Invoice shows unit price of $12.50 but PO has $10.00. Vendor confirmed price increase effective March 2026 — not captured in the original PO.",
+  "resolution_action": "po_amended",
+  "adjusted_invoice_amount": null,
+  "resolution_notes": "Buyer James Liu confirmed new pricing. PO-2026-01847 amended via Oracle change order CO-0021."
+}

@@ -1,0 +1,15 @@
+{
+  "ui:order": [
+    "discrepancy_type",
+    "discrepancy_description",
+    "resolution_action",
+    "adjusted_invoice_amount",
+    "resolution_notes"
+  ],
+  "discrepancy_description": {
+    "ui:widget": "textarea"
+  },
+  "resolution_notes": {
+    "ui:widget": "textarea"
+  }
+}

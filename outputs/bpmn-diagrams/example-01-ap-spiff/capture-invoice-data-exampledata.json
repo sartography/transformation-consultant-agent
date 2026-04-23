@@ -1,0 +1,11 @@
+{
+  "vendor_id": "VEND-00892",
+  "vendor_email": "ap@acmesupplies.com",
+  "gl_account_code": "6200-SUPPLIES",
+  "cost_center": "CC-1050",
+  "payment_terms": "net30",
+  "invoice_due_date": "2026-05-15",
+  "vendor_payment_method": "ach",
+  "po_amount": 2400.00,
+  "line_item_description": "Office supplies - Q2 restocking order"
+}

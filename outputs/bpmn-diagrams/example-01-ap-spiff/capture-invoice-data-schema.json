@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Capture Invoice Data",
+  "description": "Enter complete GL coding, vendor, and payment details for the invoice",
+  "type": "object",
+  "required": ["vendor_id", "vendor_email", "gl_account_code", "cost_center", "payment_terms", "invoice_due_date", "vendor_payment_method", "po_amount"],
+  "properties": {
+    "vendor_id": {
+      "type": "string",
+      "title": "Oracle Vendor ID"
+    },
+    "vendor_email": {
+      "type": "string",
+      "format": "email",
+      "title": "Vendor Remittance Email"
+    },
+    "gl_account_code": {
+      "type": "string",
+      "title": "GL Account Code"
+    },
+    "cost_center": {
+      "type": "string",
+      "title": "Cost Center"
+    },
+    "payment_terms": {
+      "type": "string",
+      "title": "Payment Terms",
+      "enum": ["net30", "net60", "net90", "immediate"],
+      "enumNames": ["Net 30", "Net 60", "Net 90", "Immediate"]
+    },
+    "invoice_due_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Payment Due Date"
+    },
+    "vendor_payment_method": {
+      "type": "string",
+      "title": "Vendor Payment Method",
+      "enum": ["ach", "check"],
+      "enumNames": ["ACH Direct Deposit", "Paper Check"]
+    },
+    "po_amount": {
+      "type": "number",
+      "minimum": 0,
+      "title": "PO Amount ($)",
+      "description": "Total amount on the Purchase Order (for three-way match)"
+    },
+    "line_item_description": {
+      "type": "string",
+      "title": "Line Item Description",
+      "description": "Brief description of goods or services (for match verification)"
+    }
+  }
+}
